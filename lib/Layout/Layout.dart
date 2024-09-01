@@ -53,7 +53,7 @@ class _LayoutState extends State<Layout> {
                       child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      SizedBox(height: 100, child: Header()),
+                      SizedBox(height: 78, child: Header()),
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

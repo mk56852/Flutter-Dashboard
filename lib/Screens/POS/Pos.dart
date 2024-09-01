@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:point_of_sales/Models/CardModel.dart';
+import 'package:point_of_sales/Screens/POS/widgets/CategoryList.dart';
 import 'package:point_of_sales/Screens/POS/widgets/PosCardWidget.dart';
 import 'package:point_of_sales/Screens/POS/widgets/RightBar.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
+import 'package:point_of_sales/SharedWidget/PageTitle.dart';
+import 'package:point_of_sales/SharedWidget/SearchBar.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:point_of_sales/Utils/Breakpoint.dart';
 
 class Pos extends StatelessWidget {
@@ -14,63 +18,114 @@ class Pos extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       double width = constraints.maxWidth;
       if (width > Breakpoint.md) {
-        return Row(
+        return Column(
           children: [
-            Expanded(
-              child: AlignedGridView.custom(
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                itemCount: 8,
-                itemBuilder: (context, index) {
-                  return PosCard(
-                      card: CardModel(
-                    productName: "product " + index.toString(),
-                    price: index.toString() + " DT",
-                    image: "assets/images/choco.png",
-                    badge: "badge",
-                  ));
-                },
-                shrinkWrap: true,
-                gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 400),
-              ),
+            Row(
+              children: [
+                Expanded(
+                    flex: 2,
+                    child: Pagetitle(
+                        title: "Point of sales",
+                        path: "home    Point of sales")),
+                Expanded(
+                  flex: 1,
+                  child: AppSearchBar(
+                    hintText: "Search Product",
+                  ),
+                )
+              ],
             ),
             SizedBox(
-              width: 20,
+              height: 20,
             ),
-            PosRightBar(),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            child: CategoryList(),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          AlignedGridView.custom(
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            itemCount: 8,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return PosCard(
+                                  card: CardModel(
+                                productName: "product " + index.toString(),
+                                price: index.toString() + " DT",
+                                image: "assets/images/choco.png",
+                                badge: "badge",
+                              ));
+                            },
+                            shrinkWrap: true,
+                            gridDelegate:
+                                SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 400),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  PosRightBar(),
+                ],
+              ),
+            ),
           ],
         );
       } else {
         return Scaffold(
           backgroundColor: Colors.transparent,
           floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.black38,
+            backgroundColor: Appcolors.secondBlue,
             onPressed: () => print("hello"),
             child: Text(
               "Orders",
               style: TextStyle(color: Colors.white),
             ),
           ),
-          body: Container(
-            constraints: BoxConstraints(maxWidth: width),
-            child: AlignedGridView.custom(
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              itemCount: 8,
-              itemBuilder: (context, index) {
-                return PosCard(
-                    card: CardModel(
-                  productName: "product " + index.toString(),
-                  price: index.toString() + " DT",
-                  image: "assets/images/choco.png",
-                  badge: "badge",
-                ));
-              },
-              shrinkWrap: true,
-              gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 400),
-            ),
+          body: Column(
+            children: [
+              AppSearchBar(
+                hintText: "Search Product",
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Expanded(
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: width),
+                  child: AlignedGridView.custom(
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    itemCount: 8,
+                    itemBuilder: (context, index) {
+                      return PosCard(
+                          card: CardModel(
+                        productName: "product " + index.toString(),
+                        price: index.toString() + " DT",
+                        image: "assets/images/choco.png",
+                        badge: "badge",
+                      ));
+                    },
+                    shrinkWrap: true,
+                    gridDelegate:
+                        SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 400),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       }

@@ -14,9 +14,9 @@ class PosCard extends StatelessWidget {
       onTap: () => print("one Tab"),
       onLongPress: () => print("long press"),
       child: Card(
-        color: Colors.transparent,
+        color: Colors.white,
         child: AppContainer(
-          height: 380,
+          height: 360,
           padding: EdgeInsets.all(10),
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -44,9 +44,7 @@ class PosCard extends StatelessWidget {
                       Text(
                         card.productName,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
+                            fontSize: 15, fontWeight: FontWeight.w600),
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.max,
@@ -56,7 +54,7 @@ class PosCard extends StatelessWidget {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 3, vertical: 1),
                             decoration: BoxDecoration(
-                                color: Colors.orange,
+                                color: Appcolors.mainGreen,
                                 borderRadius: BorderRadius.circular(6)),
                             child: Text(
                               card.badge,
@@ -66,20 +64,19 @@ class PosCard extends StatelessWidget {
                           ),
                           Text(
                             card.price,
-                            style: TextStyle(color: Colors.white, fontSize: 14),
+                            style: TextStyle(fontSize: 14),
                           ),
                         ],
                       ),
                       SizedBox(
                         height: 10,
                       ),
-                      SizedBox(
-                        height: 34,
+                      Expanded(
                         child: AppButton(
                             title: "Order",
-                            bgColor: Colors.transparent,
-                            textColor: Appcolors.sideBarTextColor,
-                            borderColor: Appcolors.sideBarTextColor,
+                            bgColor: Colors.white,
+                            textColor: Colors.black,
+                            borderColor: Appcolors.borderColor,
                             onTap: () => print("hello")),
                       )
                     ],

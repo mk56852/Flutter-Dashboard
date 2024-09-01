@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
 class Appcolors {
-  static Color backgroundColor = const Color.fromRGBO(16, 16, 16, 1);
-  static Color containerColor = const Color.fromRGBO(21, 21, 21, 0.8);
-  static Color sideBarColor = const Color.fromRGBO(26, 26, 26, 1);
-  static Color sideBarTextColor = const Color.fromRGBO(146, 146, 146, 1);
-  static Color borderColor = const Color.fromRGBO(51, 51, 51, 1);
+  static Color backgroundColor = const Color.fromRGBO(252, 252, 252, 1);
+  static Color containerColor = Colors.transparent;
+  static Color sideBarColor = const Color.fromRGBO(17, 17, 17, 1);
+  static Color sideBarTextColor = const Color.fromRGBO(210, 210, 210, 1);
+  static Color borderColor = const Color.fromRGBO(220, 220, 220, 1);
   static Color iconsColor = const Color.fromRGBO(0, 204, 203, 1);
+  static Color mainBlue = const Color.fromRGBO(40, 45, 200, 1);
+  static Color secondBlue = const Color.fromRGBO(64, 82, 246, 1);
+  static Color thirdBlue = const Color.fromRGBO(150, 192, 255, 1);
+  static Color lastBlue = const Color.fromRGBO(222, 234, 255, 1);
+  static Color mainGreen = const Color.fromRGBO(252, 171, 62, 1);
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:point_of_sales/Models/CardModel.dart';
+import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:point_of_sales/Utils/AppDimension.dart';
 
@@ -17,8 +18,7 @@ class _PosRightBarState extends State<PosRightBar> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.transparent,
-            border: Border.all(color: Colors.white, width: 0.3),
+            border: Border.all(color: Appcolors.borderColor),
             borderRadius: BorderRadius.circular(15)),
         constraints:
             BoxConstraints.tightForFinite(width: AppDimension.sideBarDimension),
@@ -35,16 +35,13 @@ class _PosRightBarState extends State<PosRightBar> {
                   Expanded(
                       child: Text(
                     'Orders',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   )),
                   InkWell(
                     onTap: () => print("hello"),
                     child: Text(
                       'Clear All',
-                      style: TextStyle(color: Appcolors.sideBarTextColor),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ],
@@ -53,7 +50,7 @@ class _PosRightBarState extends State<PosRightBar> {
             SizedBox(
               height: 10,
             ),
-            Divider(color: Appcolors.sideBarTextColor),
+            Divider(color: Appcolors.borderColor),
             Expanded(
                 child: SingleChildScrollView(
               child: Column(
@@ -125,9 +122,42 @@ class _PosRightBarState extends State<PosRightBar> {
                 ],
               ),
             )),
-            Divider(color: Appcolors.sideBarTextColor),
-            SizedBox(
-              height: 50,
+            Divider(color: Appcolors.borderColor),
+            Container(
+              height: 100,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total",
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        "150 DT",
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.w700),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Expanded(
+                    child: AppButton(
+                        title: "Order Now",
+                        bgColor: Appcolors.mainBlue,
+                        textColor: Colors.white,
+                        borderColor: Appcolors.borderColor,
+                        onTap: () {
+                          print("ello");
+                        }),
+                  )
+                ],
+              ),
             )
           ],
         ),
@@ -189,15 +219,11 @@ class _RightBarItemState extends State<RightBarItem> {
                   children: [
                     Text(
                       widget.card.productName,
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       widget.card.price + " X " + nb.toString(),
                       style: TextStyle(
-                        color: Appcolors.sideBarTextColor,
                         fontSize: 12,
                       ),
                     ),
@@ -207,7 +233,6 @@ class _RightBarItemState extends State<RightBarItem> {
                           child: Text(
                             (double.parse(widget.card.price) * nb).toString() +
                                 " DT",
-                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                         Expanded(
@@ -247,7 +272,6 @@ class Incrementor extends StatelessWidget {
         ),
         Text(
           nb.toString(),
-          style: TextStyle(color: Colors.white),
         ),
         InkWell(
           onTap: () => add(),

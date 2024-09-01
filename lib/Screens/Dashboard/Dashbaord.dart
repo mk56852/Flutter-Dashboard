@@ -98,7 +98,7 @@ class InfoBloc2 extends StatelessWidget {
         if (MediaQuery.of(context).size.width > Breakpoint.md)
           return SizedBox(
               width: double.maxFinite,
-              height: 400,
+              height: 450,
               child: Row(
                 children: [
                   Expanded(flex: 7, child: AppContainer(child: AppChartBar())),
@@ -115,7 +115,7 @@ class InfoBloc2 extends StatelessWidget {
               SizedBox(
                 height: 20,
               ),
-              SizedBox(height: 200, child: AppContainer(child: AppPieChart()))
+              SizedBox(height: 300, child: AppContainer(child: AppPieChart()))
             ],
           );
       },

@@ -20,7 +20,7 @@ class Dropdownwidget extends StatelessWidget {
         customButton: FaIcon(
           iconData,
           size: size,
-          color: Colors.white,
+          color: Colors.black,
         ),
         items: items
             .map((item) => DropdownMenuItem<AppDropDownItem>(child: item))

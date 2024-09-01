@@ -8,7 +8,7 @@ class AppChartBar extends StatefulWidget {
   AppChartBar({super.key});
 
   final Color barBackgroundColor = Appcolors.containerColor;
-  final Color barColor = Appcolors.iconsColor;
+  final Color barColor = Appcolors.secondBlue;
 
   @override
   State<StatefulWidget> createState() => BarChartSample1State();
@@ -39,7 +39,7 @@ class BarChartSample1State extends State<AppChartBar> {
                     'Sales forecasting chart',
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: widget.barColor,
+                      color: Colors.black,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -81,7 +81,7 @@ class BarChartSample1State extends State<AppChartBar> {
 
   Widget getTitles(double value, TitleMeta meta) {
     const style = TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
@@ -121,7 +121,6 @@ class BarChartSample1State extends State<AppChartBar> {
             getTitlesWidget: (value, meta) {
               return Text(
                 value.toString(),
-                style: TextStyle(color: Colors.white),
               );
             },
           ),

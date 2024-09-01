@@ -39,14 +39,14 @@ class NumberWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(color: Appcolors.sideBarTextColor),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       height: 5,
                     ),
                     Text(
                       text,
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black54),
                     ),
                   ],
                 )),
@@ -65,7 +65,6 @@ class NumberWidget extends StatelessWidget {
                   Icon(
                     FontAwesomeIcons.chartColumn,
                     size: 14,
-                    color: Appcolors.sideBarTextColor,
                   ),
                   SizedBox(
                     width: 5,
@@ -75,8 +74,7 @@ class NumberWidget extends StatelessWidget {
                       description!,
                       softWrap: true,
                       overflow: TextOverflow.visible,
-                      style: TextStyle(
-                          fontSize: 13, color: Appcolors.sideBarTextColor),
+                      style: TextStyle(fontSize: 13),
                     ),
                   )
                 ],
@@ -103,7 +101,7 @@ class NumberWidgetIconContainer extends StatelessWidget {
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Appcolors.containerColor),
-          color: Colors.blueAccent),
+          color: Appcolors.thirdBlue),
       child: Icon(
         iconData,
         color: Colors.white,

@@ -28,8 +28,8 @@ class AppContainer extends StatelessWidget {
       alignment: alignment,
       decoration: BoxDecoration(
           color: Appcolors.containerColor,
-          border: Border.all(color: Color.fromRGBO(51, 51, 51, 1), width: 1),
-          borderRadius: BorderRadius.circular(15)),
+          border: Border.all(color: Appcolors.borderColor, width: 1),
+          borderRadius: BorderRadius.circular(10)),
       child: child,
     );
   }

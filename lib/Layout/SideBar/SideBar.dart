@@ -13,8 +13,16 @@ class SideBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(13),
         color: Appcolors.sideBarColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3), // Shadow color
+            offset: Offset(2, 2), // Shadow offset (x, y)
+            blurRadius: 2, // Shadow blur radius
+            spreadRadius: 1, // Shadow spread radius
+          ),
+        ],
       ),
       alignment: Alignment.topCenter,
       child: Column(

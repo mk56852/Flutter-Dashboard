@@ -66,16 +66,16 @@ class headerItemContainer extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withOpacity(0.3), // Shadow color
+            color: Colors.black.withOpacity(0.3), // Shadow color
             spreadRadius: 1, // Spread radius
             blurRadius: 1, // Blur radius
-            offset: Offset(1, -1), // Offset in x and y direction
+            offset: Offset(-1, 1), // Offset in x and y direction
           ),
         ],
         gradient: LinearGradient(
           colors: [
-            Color.fromRGBO(22, 21, 21, 1),
-            Color.fromRGBO(47, 62, 52, 0.9)
+            Colors.white,
+            Color.fromRGBO(121, 227, 214, 1)
           ], // Define the gradient colors
           begin: Alignment.bottomLeft, // Start the gradient from the top-left
           end: Alignment.topRight, // End the gradient at the bottom-right
