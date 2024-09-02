@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:point_of_sales/Models/CardModel.dart';
+import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:point_of_sales/Utils/AppDimension.dart';
+import 'package:provider/provider.dart';
 
 class PosRightBar extends StatefulWidget {
   PosRightBar({super.key});
@@ -38,7 +40,9 @@ class _PosRightBarState extends State<PosRightBar> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   )),
                   InkWell(
-                    onTap: () => print("hello"),
+                    onTap: () =>
+                        Provider.of<CardNotifier>(context, listen: false)
+                            .deleteAll(),
                     child: Text(
                       'Clear All',
                       style: TextStyle(color: Colors.black),
@@ -54,72 +58,11 @@ class _PosRightBarState extends State<PosRightBar> {
             Expanded(
                 child: SingleChildScrollView(
               child: Column(
-                children: [
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.0",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                  RightBarItem(
-                    card: CardModel(
-                      productName: "product ",
-                      price: "20.5",
-                      image: "assets/images/logo.png",
-                      badge: "badge",
-                    ),
-                  ),
-                ],
+                children: Provider.of<CardNotifier>(context)
+                    .cards
+                    .map((item) =>
+                        RightBarItem(card: item)) // Use => to return widgets
+                    .toList(),
               ),
             )),
             Divider(color: Appcolors.borderColor),
@@ -137,7 +80,8 @@ class _PosRightBarState extends State<PosRightBar> {
                             fontSize: 19, fontWeight: FontWeight.w700),
                       ),
                       Text(
-                        "150 DT",
+                        Provider.of<CardNotifier>(context).total.toString() +
+                            " DT",
                         style: TextStyle(
                             fontSize: 19, fontWeight: FontWeight.w700),
                       )
@@ -236,8 +180,11 @@ class _RightBarItemState extends State<RightBarItem> {
                           ),
                         ),
                         Expanded(
-                            child:
-                                Incrementor(nb: nb, add: add, delete: delete))
+                            child: Incrementor(
+                                nb: nb,
+                                add: add,
+                                delete: delete,
+                                price: widget.card.price))
                       ],
                     )
                   ],
@@ -253,8 +200,13 @@ class Incrementor extends StatelessWidget {
   int nb;
   Function add;
   Function delete;
+  String price;
   Incrementor(
-      {super.key, required this.nb, required this.add, required this.delete});
+      {super.key,
+      required this.nb,
+      required this.add,
+      required this.delete,
+      required this.price});
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +215,11 @@ class Incrementor extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       children: [
         InkWell(
-          onTap: () => delete(),
+          onTap: () {
+            delete();
+            Provider.of<CardNotifier>(context, listen: false)
+                .deletePrice(price);
+          },
           child: Text(
             "-",
             style: TextStyle(
@@ -274,7 +230,10 @@ class Incrementor extends StatelessWidget {
           nb.toString(),
         ),
         InkWell(
-          onTap: () => add(),
+          onTap: () {
+            add();
+            Provider.of<CardNotifier>(context, listen: false).addPrice(price);
+          },
           child: Text(
             "+",
             style: TextStyle(

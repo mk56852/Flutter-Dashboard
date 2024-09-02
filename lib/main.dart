@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:point_of_sales/Layout/Layout.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
+import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CardNotifier()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

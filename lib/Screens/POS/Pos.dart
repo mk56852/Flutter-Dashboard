@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:point_of_sales/Models/CardModel.dart';
+import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
 import 'package:point_of_sales/Screens/POS/widgets/CategoryList.dart';
 import 'package:point_of_sales/Screens/POS/widgets/PosCardWidget.dart';
 import 'package:point_of_sales/Screens/POS/widgets/RightBar.dart';
@@ -9,6 +10,7 @@ import 'package:point_of_sales/SharedWidget/PageTitle.dart';
 import 'package:point_of_sales/SharedWidget/SearchBar.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:point_of_sales/Utils/Breakpoint.dart';
+import 'package:provider/provider.dart';
 
 class Pos extends StatelessWidget {
   const Pos({super.key});
@@ -60,7 +62,7 @@ class Pos extends StatelessWidget {
                               return PosCard(
                                   card: CardModel(
                                 productName: "product " + index.toString(),
-                                price: index.toString() + " DT",
+                                price: index.toString(),
                                 image: "assets/images/choco.png",
                                 badge: "badge",
                               ));
@@ -68,7 +70,7 @@ class Pos extends StatelessWidget {
                             shrinkWrap: true,
                             gridDelegate:
                                 SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent: 400),
+                                    maxCrossAxisExtent: 350),
                           ),
                         ],
                       ),
@@ -77,7 +79,9 @@ class Pos extends StatelessWidget {
                   SizedBox(
                     width: 20,
                   ),
-                  PosRightBar(),
+                  Provider.of<CardNotifier>(context).cards.isEmpty
+                      ? SizedBox()
+                      : PosRightBar()
                 ],
               ),
             ),
