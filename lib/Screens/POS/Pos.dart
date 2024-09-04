@@ -33,6 +33,7 @@ class Pos extends StatelessWidget {
                   flex: 1,
                   child: AppSearchBar(
                     hintText: "Search Product",
+                    onChange: () => print("changed"),
                   ),
                 )
               ],
@@ -102,6 +103,7 @@ class Pos extends StatelessWidget {
             children: [
               AppSearchBar(
                 hintText: "Search Product",
+                onChange: () => print("changed"),
               ),
               SizedBox(
                 height: 10,
