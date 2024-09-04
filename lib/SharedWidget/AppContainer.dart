@@ -8,6 +8,10 @@ class AppContainer extends StatelessWidget {
   final double? width;
   final EdgeInsetsGeometry? padding;
   final Alignment? alignment;
+  final Color? bgColor;
+  final Color? borderColor;
+  final double elevation;
+
   final BoxConstraints? constraints;
   AppContainer(
       {super.key,
@@ -16,21 +20,31 @@ class AppContainer extends StatelessWidget {
       this.padding,
       this.alignment,
       this.constraints,
+      this.bgColor,
+      this.borderColor,
+      this.elevation = 0,
       required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: width,
-      padding: padding,
-      constraints: constraints,
-      alignment: alignment,
-      decoration: BoxDecoration(
-          color: Appcolors.containerColor,
-          border: Border.all(color: Appcolors.borderColor, width: 1),
-          borderRadius: BorderRadius.circular(10)),
-      child: child,
+    Color bg = bgColor ?? Appcolors.containerColor;
+    Color border = borderColor ?? Appcolors.borderColor;
+    return Material(
+      elevation: elevation,
+      color: bg,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        height: height,
+        width: width,
+        padding: padding,
+        constraints: constraints,
+        alignment: alignment,
+        decoration: BoxDecoration(
+            color: bg,
+            border: Border.all(color: border, width: 1),
+            borderRadius: BorderRadius.circular(10)),
+        child: child,
+      ),
     );
   }
 }

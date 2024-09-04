@@ -6,6 +6,7 @@ import 'package:point_of_sales/Screens/Dashboard/Widgets/AppLineChart.dart';
 import 'package:point_of_sales/Screens/Dashboard/Widgets/AppPieChart.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/SharedWidget/NumberWidget.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:point_of_sales/Utils/AppDimension.dart';
 import 'package:point_of_sales/Utils/AppTable.dart';
 import 'package:point_of_sales/Utils/Breakpoint.dart';
@@ -19,7 +20,9 @@ class Dashbaord extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          InfoBarWidget(),
+          InfoBarWidget(
+            data: infoList,
+          ),
           SizedBox(
             height: 20,
           ),
@@ -38,6 +41,7 @@ List<Widget> infoList = [
   SizedBox(
     child: NumberWidget(
       title: "Users number",
+      bgColor: Appcolors.lastBlue,
       mainIconData: FontAwesomeIcons.person,
       text: "153",
       description: "15 new user are added",
@@ -70,7 +74,8 @@ List<Widget> infoList = [
 ];
 
 class InfoBarWidget extends StatelessWidget {
-  InfoBarWidget({super.key});
+  List<Widget> data;
+  InfoBarWidget({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +84,7 @@ class InfoBarWidget extends StatelessWidget {
       crossAxisSpacing: 20,
       itemCount: infoList.length,
       itemBuilder: (context, index) {
-        return infoList[index];
+        return data[index];
       },
       shrinkWrap: true,
       gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(

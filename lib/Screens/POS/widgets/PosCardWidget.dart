@@ -4,7 +4,7 @@ import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
-import 'package:point_of_sales/data/AppData.dart';
+
 import 'package:provider/provider.dart';
 
 class PosCard extends StatelessWidget {

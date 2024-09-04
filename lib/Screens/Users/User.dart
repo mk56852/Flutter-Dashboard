@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:point_of_sales/Layout/Layout.dart';
+import 'package:point_of_sales/Screens/Users/AddUserScreen.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/PageTitle.dart';
 import 'package:point_of_sales/Utils/AppTable.dart';
@@ -19,25 +21,35 @@ class UsersScreen extends StatelessWidget {
                 Expanded(
                     child: Pagetitle(
                         title: "User Management",
-                        path: "home  User Management")),
+                        path: "Home    User Management")),
                 Expanded(
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    AppButtonWithIcon(
-                      text: "Add User",
-                      onPress: () => print("hello"),
-                      icon: Icons.add_box_outlined,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    AppButtonWithIcon(
-                      text: "Export",
-                      onPress: () => print("hello"),
-                      icon: Icons.data_exploration_outlined,
-                    ),
-                  ],
+                    child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 8,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        child: AppButtonWithIcon(
+                          text: "Add User",
+                          onPress: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      Layout(body: AddUserScreen()))),
+                          icon: Icons.add_box_outlined,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        child: AppButtonWithIcon(
+                          text: "Export",
+                          onPress: () => print("hello"),
+                          icon: Icons.data_exploration_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
                 ))
               ],
             ),

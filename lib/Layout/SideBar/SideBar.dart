@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
+import 'package:point_of_sales/Screens/Financial/FinancialScreen.dart';
 import 'package:point_of_sales/Screens/POS/Pos.dart';
 import 'package:point_of_sales/Screens/Users/User.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
@@ -25,30 +26,52 @@ class SideBar extends StatelessWidget {
         ],
       ),
       alignment: Alignment.topCenter,
-      child: Column(
-        children: [
-          SideBarLogo(),
-          SideBarItem(
-            text: "Admin Dashboard",
-            iconData: FontAwesomeIcons.chartBar,
-            onClick: () => handleNavigate(Dashbaord()),
-          ),
-          SideBarItem(
-            text: "User Management",
-            iconData: FontAwesomeIcons.user,
-            onClick: () => handleNavigate(UsersScreen()),
-          ),
-          SideBarItem(
-            text: "Point of Sales",
-            iconData: FontAwesomeIcons.boxesStacked,
-            onClick: () => handleNavigate(Pos()),
-          ),
-          SideBarItem(
-            text: "Analytics",
-            iconData: FontAwesomeIcons.chartLine,
-            onClick: () => handleNavigate(Pos()),
-          )
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SideBarLogo(),
+            SideBarItem(
+              text: "Admin Dashboard",
+              iconData: FontAwesomeIcons.chartBar,
+              onClick: () => handleNavigate(Dashbaord()),
+            ),
+            SideBarItem(
+              text: "User Management",
+              iconData: FontAwesomeIcons.user,
+              onClick: () => handleNavigate(UsersScreen()),
+            ),
+            SideBarItem(
+              text: "Point of Sales",
+              iconData: FontAwesomeIcons.cartShopping,
+              onClick: () => handleNavigate(Pos()),
+            ),
+            SideBarItem(
+              text: "Financial",
+              iconData: FontAwesomeIcons.moneyBill1,
+              onClick: () => handleNavigate(FinancialScreen()),
+            ),
+            SideBarItem(
+              text: "Products",
+              iconData: FontAwesomeIcons.boxOpen,
+              onClick: () => handleNavigate(Pos()),
+            ),
+            SideBarItem(
+              text: "Reservations",
+              iconData: FontAwesomeIcons.calendar,
+              onClick: () => handleNavigate(Pos()),
+            ),
+            SideBarItem(
+              text: "Sales",
+              iconData: FontAwesomeIcons.chartLine,
+              onClick: () => handleNavigate(Pos()),
+            ),
+            SideBarItem(
+              text: "Stock Management",
+              iconData: FontAwesomeIcons.boxesStacked,
+              onClick: () => handleNavigate(Pos()),
+            )
+          ],
+        ),
       ),
     );
   }

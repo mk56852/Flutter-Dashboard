@@ -60,7 +60,7 @@ class AppButtonWithIcon extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(7),
         ),
         height: height,
         child: Row(
@@ -75,6 +75,7 @@ class AppButtonWithIcon extends StatelessWidget {
             ],
             Text(
               text,
+
               style:
                   TextStyle(color: fontColor), // Set the font color of the text
             ),

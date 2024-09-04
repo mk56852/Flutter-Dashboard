@@ -9,21 +9,36 @@ class NumberWidget extends StatelessWidget {
   String text;
   IconData mainIconData;
   String? description;
+  Color? bgColor;
+  Color? fontColor;
+  Color? iconColor;
+  Color? iconBgColor;
+  Color? iconBorderColor;
 
-  NumberWidget({
-    super.key,
-    required this.title,
-    required this.mainIconData,
-    required this.text,
-    this.description,
-  });
+  NumberWidget(
+      {super.key,
+      required this.title,
+      required this.mainIconData,
+      required this.text,
+      this.description,
+      this.bgColor,
+      this.iconBgColor,
+      this.iconBorderColor,
+      this.iconColor,
+      this.fontColor});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    Color bg = bgColor ?? Colors.white;
+    Color ft = fontColor ?? Colors.black;
+    Color iconC = iconColor ?? Colors.white;
+    Color IconBg = iconBgColor ?? Appcolors.thirdBlue;
+    Color IconBorder = iconBorderColor ?? Colors.white;
+    return AppContainer(
+      elevation: 1,
       width: AppDimension.numberWidgetMinWidth,
-      child: AppContainer(
-          child: Padding(
+      bgColor: bg,
+      child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
@@ -39,7 +54,8 @@ class NumberWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w700, fontSize: 17, color: ft),
                     ),
                     SizedBox(
                       height: 5,
@@ -51,6 +67,9 @@ class NumberWidget extends StatelessWidget {
                   ],
                 )),
                 NumberWidgetIconContainer(
+                  iconColor: iconC,
+                  bgColor: IconBg,
+                  borderColor: IconBorder,
                   iconData: mainIconData,
                   size: 45,
                 ),
@@ -65,6 +84,7 @@ class NumberWidget extends StatelessWidget {
                   Icon(
                     FontAwesomeIcons.chartColumn,
                     size: 14,
+                    color: ft,
                   ),
                   SizedBox(
                     width: 5,
@@ -74,14 +94,14 @@ class NumberWidget extends StatelessWidget {
                       description!,
                       softWrap: true,
                       overflow: TextOverflow.visible,
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13, color: ft),
                     ),
                   )
                 ],
               )
           ],
         ),
-      )),
+      ),
     );
   }
 }
@@ -89,8 +109,16 @@ class NumberWidget extends StatelessWidget {
 class NumberWidgetIconContainer extends StatelessWidget {
   IconData iconData;
   double size;
+  Color bgColor;
+  Color iconColor;
+  Color borderColor;
   NumberWidgetIconContainer(
-      {super.key, required this.iconData, required this.size});
+      {super.key,
+      required this.iconData,
+      required this.size,
+      required this.bgColor,
+      required this.iconColor,
+      required this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +128,11 @@ class NumberWidgetIconContainer extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Appcolors.containerColor),
-          color: Appcolors.thirdBlue),
+          border: Border.all(color: borderColor),
+          color: bgColor),
       child: Icon(
         iconData,
-        color: Colors.white,
+        color: iconColor,
         size: 20,
       ),
     );

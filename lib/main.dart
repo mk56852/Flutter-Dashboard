@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:point_of_sales/Layout/Layout.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
 import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
+
 import 'package:provider/provider.dart';
 
 void main() {
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        fontFamily: 'roboto',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),

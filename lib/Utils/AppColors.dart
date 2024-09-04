@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class Appcolors {
   static Color backgroundColor = const Color.fromRGBO(252, 252, 252, 1);
-  static Color containerColor = Colors.transparent;
+  static Color containerColor = const Color.fromRGBO(252, 252, 252, 1);
   static Color sideBarColor = const Color.fromRGBO(17, 17, 17, 1);
   static Color sideBarTextColor = const Color.fromRGBO(210, 210, 210, 1);
   static Color borderColor = const Color.fromRGBO(220, 220, 220, 1);
