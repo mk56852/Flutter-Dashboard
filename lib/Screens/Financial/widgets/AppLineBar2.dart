@@ -212,7 +212,7 @@ class AppLineBar2State extends State<AppLineBar2> {
         ),
       ),
       borderData: FlBorderData(
-        show: true,
+        show: false,
       ),
       barGroups: showingGroups(),
       gridData: const FlGridData(show: false),

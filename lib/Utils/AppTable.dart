@@ -13,6 +13,20 @@ class PaginatedDataTableExample extends StatefulWidget {
 class _PaginatedDataTableExampleState extends State<PaginatedDataTableExample> {
   final _data = MyData();
   String _searchQuery = '';
+  bool _sortAscending = true;
+  int? _sortColumnIndex;
+
+  void sort<T>(
+    String columnName,
+    int columnIndex,
+    bool ascending,
+  ) {
+    _data.sort(columnName, ascending);
+    setState(() {
+      _sortColumnIndex = columnIndex;
+      _sortAscending = ascending;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,61 +63,61 @@ class _PaginatedDataTableExampleState extends State<PaginatedDataTableExample> {
             ),
             Expanded(
               child: PaginatedDataTable2(
+                sortArrowAlwaysVisible: true,
+                sortColumnIndex: _sortColumnIndex,
+                sortAscending: _sortAscending,
+                sortArrowIcon: Icons.keyboard_arrow_up, // custom arrow
+                sortArrowAnimationDuration: const Duration(milliseconds: 200),
                 dividerThickness: 0.5,
                 columns: [
                   DataColumn(
-                    label: Expanded(
-                      child: Center(
-                        child: Text(
-                          'ID',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                    headingRowAlignment: MainAxisAlignment.center,
+                    label: Center(
+                      child: Text(
+                        'ID',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     numeric: true,
                     onSort: (columnIndex, ascending) {
-                      _data.sort('id', ascending);
+                      sort('id', 0, ascending);
                     },
                   ),
                   DataColumn(
-                    label: Expanded(
-                      child: Center(
-                        child: Text(
-                          'Name',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                    label: Center(
+                      child: Text(
+                        'Name',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     onSort: (columnIndex, ascending) {
-                      _data.sort('name', ascending);
+                      sort('name', 1, ascending);
                     },
                   ),
                   DataColumn(
-                    label: Expanded(
-                      child: Center(
-                        child: Text(
-                          'Age',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                    label: Center(
+                      child: Text(
+                        'Age',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     numeric: true,
                     onSort: (columnIndex, ascending) {
-                      _data.sort('age', ascending);
+                      print(ascending.toString());
+                      sort('age', 2, ascending);
                     },
                   ),
                   DataColumn(
-                    label: Expanded(
-                      child: Center(
-                        child: Text('Profession',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
+                    label: Center(
+                      child: Text('Profession',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                     onSort: (columnIndex, ascending) {
-                      _data.sort('profession', ascending);
+                      sort('profession', 3, ascending);
                     },
                   ),
                 ],
+
                 source: _data,
                 columnSpacing: 12,
                 horizontalMargin: 12,
@@ -134,17 +148,9 @@ class MyData extends DataTableSource {
   String _sortColumn = 'id'; // Default sort column
   bool _sortAscending = true; // Default sort direction
 
-  MyData()
-      : _filteredData = List.from(List.generate(
-          100,
-          (index) => {
-            "id": index,
-            "name": "User $index",
-            "age": 20 + index % 50,
-            "profession": "Profession $index"
-          },
-        ));
-
+  MyData() : _filteredData = [] {
+    _filteredData = List.from(_allData);
+  }
   void updateFilter(String query) {
     if (query.isEmpty) {
       _filteredData = List.from(_allData);
