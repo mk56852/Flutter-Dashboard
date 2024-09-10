@@ -34,10 +34,9 @@ class NumberWidget extends StatelessWidget {
     Color iconC = iconColor ?? Colors.white;
     Color IconBg = iconBgColor ?? Appcolors.thirdBlue;
     Color IconBorder = iconBorderColor ?? Colors.white;
-    return AppContainer(
-      elevation: 1,
-      width: AppDimension.numberWidgetMinWidth,
-      bgColor: bg,
+    return Card(
+      elevation: 2,
+      color: bg,
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
@@ -54,15 +53,14 @@ class NumberWidget extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 17, color: ft),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     SizedBox(
                       height: 5,
                     ),
                     Text(
                       text,
-                      style: TextStyle(color: Colors.black54),
+                      style: Theme.of(context).textTheme.labelMedium,
                     ),
                   ],
                 )),

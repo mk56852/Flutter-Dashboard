@@ -35,15 +35,9 @@ class BarChartSample1State extends State<AppChartBar> {
               ),
               Expanded(
                 child: Center(
-                  child: Text(
-                    'Sales forecasting chart',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Text('Sales forecasting chart',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge),
                 ),
               ),
             ],

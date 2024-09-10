@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:point_of_sales/Layout/Layout.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
 import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,17 @@ class MyApp extends StatelessWidget {
         fontFamily: 'roboto',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        textTheme: TextTheme(
+          titleLarge: TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
+          titleMedium: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+          titleSmall: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+          labelLarge: TextStyle(fontSize: 17, color: Appcolors.secondTextColor),
+          labelMedium:
+              TextStyle(fontSize: 15, color: Appcolors.secondTextColor),
+          labelSmall: TextStyle(fontSize: 13, color: Appcolors.secondTextColor),
+
+          // You can add more text styles as needed
+        ),
       ),
       home: Layout(body: Dashbaord()),
     );

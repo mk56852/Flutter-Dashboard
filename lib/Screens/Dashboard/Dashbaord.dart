@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:point_of_sales/Data/AppData.dart';
 import 'package:point_of_sales/Screens/Dashboard/Widgets/AppChartBar.dart';
 import 'package:point_of_sales/Screens/Dashboard/Widgets/AppLineChart.dart';
 import 'package:point_of_sales/Screens/Dashboard/Widgets/AppPieChart.dart';
+import 'package:point_of_sales/Screens/Dashboard/Widgets/TransactionsHistory.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/SharedWidget/NumberWidget.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
@@ -88,7 +90,7 @@ class InfoBarWidget extends StatelessWidget {
       },
       shrinkWrap: true,
       gridDelegate: SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: AppDimension.numberWidgetMinWidth + 40),
+          maxCrossAxisExtent: AppDimension.numberWidgetMinWidth + 30),
     );
   }
 }
@@ -106,11 +108,24 @@ class InfoBloc2 extends StatelessWidget {
               height: 450,
               child: Row(
                 children: [
-                  Expanded(flex: 7, child: AppContainer(child: AppChartBar())),
+                  Expanded(
+                      flex: 8,
+                      child: Card(
+                          elevation: 2,
+                          color: Colors.white,
+                          child: AppChartBar())),
                   SizedBox(
                     width: 20,
                   ),
-                  Expanded(flex: 5, child: AppContainer(child: AppPieChart()))
+                  Expanded(
+                      flex: 5,
+                      child: Card(
+                          elevation: 2,
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TransactionsHistory(data: AppData.histData),
+                          )))
                 ],
               ));
         else

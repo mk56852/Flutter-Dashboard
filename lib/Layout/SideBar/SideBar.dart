@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
 import 'package:point_of_sales/Screens/Financial/FinancialScreen.dart';
 import 'package:point_of_sales/Screens/POS/Pos.dart';
+import 'package:point_of_sales/Screens/Stock/Stock.dart';
 import 'package:point_of_sales/Screens/Users/User.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
@@ -46,6 +47,11 @@ class SideBar extends StatelessWidget {
               onClick: () => handleNavigate(Pos()),
             ),
             SideBarItem(
+              text: "Stock Management",
+              iconData: FontAwesomeIcons.boxesStacked,
+              onClick: () => handleNavigate(StockScreen()),
+            ),
+            SideBarItem(
               text: "Financial",
               iconData: FontAwesomeIcons.moneyBill1,
               onClick: () => handleNavigate(FinancialScreen()),
@@ -65,11 +71,6 @@ class SideBar extends StatelessWidget {
               iconData: FontAwesomeIcons.chartLine,
               onClick: () => handleNavigate(Pos()),
             ),
-            SideBarItem(
-              text: "Stock Management",
-              iconData: FontAwesomeIcons.boxesStacked,
-              onClick: () => handleNavigate(Pos()),
-            )
           ],
         ),
       ),

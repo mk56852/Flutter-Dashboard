@@ -1,31 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
+import 'package:point_of_sales/Data/AppData.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/SharedWidget/SearchBar.dart';
-import 'package:point_of_sales/Utils/AppColors.dart';
 
-class PaginatedDataTableExample extends StatefulWidget {
+class AppPaginatedDataTable extends StatefulWidget {
+  List<dynamic> allData;
+  List<Comparable<dynamic> Function(dynamic)> getFieldFunctions;
+  List<String Function(dynamic)> getColumnValueFunctions;
+
+  AppPaginatedDataTable(
+      {required this.allData,
+      required this.getColumnValueFunctions,
+      required this.getFieldFunctions});
+
   @override
-  _PaginatedDataTableExampleState createState() =>
-      _PaginatedDataTableExampleState();
+  _AppPaginatedDataTableState createState() => _AppPaginatedDataTableState();
 }
 
-class _PaginatedDataTableExampleState extends State<PaginatedDataTableExample> {
-  final _data = MyData();
+class _AppPaginatedDataTableState extends State<AppPaginatedDataTable> {
+  late AppDataSource _data;
   String _searchQuery = '';
   bool _sortAscending = true;
   int? _sortColumnIndex;
 
+  @override
+  void initState() {
+    _data = AppDataSource(
+        allData: widget.allData,
+        getFieldFunctions: widget.getFieldFunctions,
+        getColumnValueFunctions: widget.getColumnValueFunctions);
+    super.initState();
+  }
+
   void sort<T>(
-    String columnName,
     int columnIndex,
     bool ascending,
   ) {
-    _data.sort(columnName, ascending);
-    setState(() {
-      _sortColumnIndex = columnIndex;
-      _sortAscending = ascending;
-    });
+    _data.sort(columnIndex, ascending);
   }
 
   @override
@@ -69,54 +81,24 @@ class _PaginatedDataTableExampleState extends State<PaginatedDataTableExample> {
                 sortArrowIcon: Icons.keyboard_arrow_up, // custom arrow
                 sortArrowAnimationDuration: const Duration(milliseconds: 200),
                 dividerThickness: 0.5,
-                columns: [
-                  DataColumn(
-                    headingRowAlignment: MainAxisAlignment.center,
-                    label: Center(
-                      child: Text(
-                        'ID',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                columns: AppData.userTableColumns
+                    .map(
+                      (item) => DataColumn(
+                        headingRowAlignment: MainAxisAlignment.center,
+                        label: Center(
+                          child: Text(
+                            item["name"],
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        numeric: item["isNumeric"],
+                        onSort: (columnIndex, ascending) {
+                          sort(AppData.userTableColumns.indexOf(item),
+                              ascending);
+                        },
                       ),
-                    ),
-                    numeric: true,
-                    onSort: (columnIndex, ascending) {
-                      sort('id', 0, ascending);
-                    },
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: Text(
-                        'Name',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      sort('name', 1, ascending);
-                    },
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: Text(
-                        'Age',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    numeric: true,
-                    onSort: (columnIndex, ascending) {
-                      print(ascending.toString());
-                      sort('age', 2, ascending);
-                    },
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: Text('Profession',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                    onSort: (columnIndex, ascending) {
-                      sort('profession', 3, ascending);
-                    },
-                  ),
-                ],
+                    )
+                    .toList(),
 
                 source: _data,
                 columnSpacing: 12,
@@ -134,55 +116,48 @@ class _PaginatedDataTableExampleState extends State<PaginatedDataTableExample> {
   }
 }
 
-class MyData extends DataTableSource {
-  final List<Map<String, dynamic>> _allData = List.generate(
-    100,
-    (index) => {
-      "id": index,
-      "name": "User $index",
-      "age": 20 + index % 50,
-      "profession": "Profession $index"
-    },
-  );
-  List<Map<String, dynamic>> _filteredData;
-  String _sortColumn = 'id'; // Default sort column
+class AppDataSource<T> extends DataTableSource {
+  final List<T> _allData;
+  List<T> _filteredData;
+  int _sortColumnIndex = 0; // Default sort column index
   bool _sortAscending = true; // Default sort direction
 
-  MyData() : _filteredData = [] {
-    _filteredData = List.from(_allData);
-  }
+  final List<Comparable Function(T)> _getFieldFunctions;
+  final List<String Function(T)> _getColumnValueFunctions;
+
+  AppDataSource({
+    required List<T> allData,
+    required List<Comparable Function(T)> getFieldFunctions,
+    required List<String Function(T)> getColumnValueFunctions,
+  })  : _allData = List.from(allData),
+        _filteredData = List.from(allData),
+        _getFieldFunctions = getFieldFunctions,
+        _getColumnValueFunctions = getColumnValueFunctions;
+
   void updateFilter(String query) {
     if (query.isEmpty) {
       _filteredData = List.from(_allData);
     } else {
-      _filteredData = _allData.where((row) {
-        return row['name'].toLowerCase().contains(query.toLowerCase()) ||
-            row['profession'].toLowerCase().contains(query.toLowerCase());
+      _filteredData = _allData.where((item) {
+        return _getColumnValueFunctions.any(
+            (func) => func(item).toLowerCase().contains(query.toLowerCase()));
       }).toList();
     }
-    _sortData(); // Apply sorting after filtering
+    _sortData();
     notifyListeners();
   }
 
   void _sortData() {
     _filteredData.sort((a, b) {
-      int compareResult;
-      if (_sortColumn == 'id') {
-        compareResult = (a['id'] as int).compareTo(b['id'] as int);
-      } else if (_sortColumn == 'name') {
-        compareResult = (a['name'] as String).compareTo(b['name'] as String);
-      } else if (_sortColumn == 'age') {
-        compareResult = (a['age'] as int).compareTo(b['age'] as int);
-      } else {
-        compareResult =
-            (a['profession'] as String).compareTo(b['profession'] as String);
-      }
+      final compareResult = _getFieldFunctions[_sortColumnIndex](a).compareTo(
+        _getFieldFunctions[_sortColumnIndex](b),
+      );
       return _sortAscending ? compareResult : -compareResult;
     });
   }
 
-  void sort(String columnName, bool ascending) {
-    _sortColumn = columnName;
+  void sort(int columnIndex, bool ascending) {
+    _sortColumnIndex = columnIndex;
     _sortAscending = ascending;
     _sortData();
     notifyListeners();
@@ -191,22 +166,13 @@ class MyData extends DataTableSource {
   @override
   DataRow? getRow(int index) {
     if (index >= _filteredData.length) return null;
-    final user = _filteredData[index];
+    final item = _filteredData[index];
 
     return DataRow.byIndex(
       index: index,
-      cells: [
-        DataCell(Center(child: Text(user['id'].toString()))),
-        DataCell(Center(child: Text(user['name']))),
-        DataCell(Center(child: Text(user['age'].toString()))),
-        DataCell(Center(child: Text(user['profession']))),
-      ],
-      color: MaterialStateProperty.resolveWith<Color>((states) {
-        if (states.contains(MaterialState.selected)) {
-          return Appcolors.lastBlue; // Selected row color
-        }
-        return Colors.transparent; // Alternating row colors
-      }),
+      cells: _getColumnValueFunctions
+          .map((func) => DataCell(Center(child: Text(func(item)))))
+          .toList(),
     );
   }
 

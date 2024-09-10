@@ -56,7 +56,33 @@ class UsersScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Expanded(child: PaginatedDataTableExample())
+            Expanded(
+                child: AppPaginatedDataTable(
+              allData: List.generate(
+                100,
+                (index) => {
+                  "id": index,
+                  "name": "User $index",
+                  "age": 20 + index % 50,
+                  "profession": "Profession $index",
+                  "role": "hello"
+                },
+              ),
+              getFieldFunctions: [
+                (data) => data['id'] as int,
+                (data) => data['name'] as String,
+                (data) => data['age'] as int,
+                (data) => data['profession'] as String,
+                (data) => data['role'] as String,
+              ],
+              getColumnValueFunctions: [
+                (data) => data['id'].toString(),
+                (data) => data['name'],
+                (data) => data['age'].toString(),
+                (data) => data['profession'],
+                (data) => data['role'],
+              ],
+            ))
           ],
         ),
       ),
