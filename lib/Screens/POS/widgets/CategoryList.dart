@@ -5,13 +5,13 @@ import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
 List categories = [
-  Category(name: "Categoryazazaze 1", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 2", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Cate 3", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 4", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Categaaaaaaa 5", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 6", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 7", icon: FontAwesomeIcons.addressCard),
+  Category(id: 1, name: "Categoryazazaze 1", imageUrl: "assets/"),
+  Category(id: 1, name: "Category 2", imageUrl: "assets/"),
+  Category(id: 1, name: "Cate 3", imageUrl: "assets/"),
+  Category(id: 1, name: "Category 4", imageUrl: "assets/"),
+  Category(id: 1, name: "Categaaaaaaa 5", imageUrl: "assets/"),
+  Category(id: 1, name: "Category 6", imageUrl: "assets/"),
+  Category(id: 1, name: "Category 7", imageUrl: "assets/"),
 ];
 
 class CategoryList extends StatelessWidget {
@@ -57,7 +57,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         child: Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Appcolors.borderColor, width: 1),
-                borderRadius: BorderRadius.circular(6)),
+                borderRadius: BorderRadius.circular(10)),
             padding: EdgeInsets.symmetric(horizontal: 10),
             constraints:
                 BoxConstraints(maxWidth: 150, minWidth: 30, minHeight: 50),

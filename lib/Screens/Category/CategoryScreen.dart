@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:point_of_sales/Screens/Users/widgets/AddUserModal.dart';
+import 'package:point_of_sales/Screens/Category/widgets/AddCategoryModal.dart';
+import 'package:point_of_sales/Screens/Category/widgets/CategoryTable.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/PageTitle.dart';
-import 'package:point_of_sales/Utils/AppTable.dart';
 
-class UsersScreen extends StatelessWidget {
-  const UsersScreen({super.key});
+class CategoryScreen extends StatelessWidget {
+  const CategoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,7 @@ class UsersScreen extends StatelessWidget {
               children: [
                 Expanded(
                     child: Pagetitle(
-                        title: "User Management",
-                        path: "Home  >  User Management")),
+                        title: "Category", path: "Home  >  cateogries Table")),
                 Expanded(
                     child: Align(
                   alignment: Alignment.centerRight,
@@ -29,25 +28,17 @@ class UsersScreen extends StatelessWidget {
                     runSpacing: 8,
                     children: [
                       SizedBox(
-                        width: 150,
+                        width: 190,
                         child: AppButtonWithIcon(
-                          text: "Add User",
+                          text: "Add Category",
                           onPress: () => showModalBottomSheet<void>(
                             isScrollControlled: true,
                             context: context,
                             builder: (BuildContext context) {
-                              return AddUserModal();
+                              return AddCategoryModal();
                             },
                           ),
                           icon: Icons.add_box_outlined,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 150,
-                        child: AppButtonWithIcon(
-                          text: "Export",
-                          onPress: () => print("hello"),
-                          icon: Icons.data_exploration_outlined,
                         ),
                       ),
                     ],
@@ -58,7 +49,7 @@ class UsersScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Expanded(child: AppDataTable())
+            Expanded(child: CategoryTable())
           ],
         ),
       ),

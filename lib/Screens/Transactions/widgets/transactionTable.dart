@@ -3,31 +3,43 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:point_of_sales/Models/User.dart';
+import 'package:point_of_sales/Models/Transaction.dart';
 import 'package:point_of_sales/Services/Api.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:point_of_sales/Configuration/AppConfig.dart';
 
-class AppDataTable extends StatefulWidget {
-  AppDataTable({Key? key}) : super(key: key);
+class TransactionTable extends StatefulWidget {
+  TransactionTable({Key? key}) : super(key: key);
 
   @override
-  _AppDataTableState createState() => _AppDataTableState();
+  _TransactionTableState createState() => _TransactionTableState();
 }
 
-class _AppDataTableState extends State<AppDataTable> {
+class _TransactionTableState extends State<TransactionTable> {
   ApiService service = new ApiService();
-  List<User> users = <User>[];
-  UsersDataSource? usersDataSource;
+  List<Transaction> transactions = <Transaction>[];
+  List<Transaction> filteredTransactions = <Transaction>[];
+  TransactionDataSource? transactionDataSource;
   bool isLoading = true;
-  final int rowsPerPage = 5;
+  final int rowsPerPage = 7;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
+    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
+
+    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
+
+    isLoading = false;
+    filteredTransactions = transactions;
+    transactionDataSource = TransactionDataSource(
+        transactionsData: filteredTransactions, rowsPerPage: rowsPerPage);
+    //fetchData();
   }
 
   Future<void> fetchData() async {
@@ -39,18 +51,39 @@ class _AppDataTableState extends State<AppDataTable> {
       Future.delayed(
           Duration(seconds: 2),
           () => setState(() {
-                users =
-                    jsonResponse.map((user) => User.fromJson(user)).toList();
-                usersDataSource = UsersDataSource(employeeData: users);
+                transactions = jsonResponse
+                    .map((transaction) => Transaction.fromJson(transaction))
+                    .toList();
+                transactionDataSource = TransactionDataSource(
+                    transactionsData: transactions, rowsPerPage: rowsPerPage);
                 isLoading = false;
               }));
     } else {
       setState(() {
-        users = [];
-        usersDataSource = UsersDataSource(employeeData: users);
+        transactions = [];
+        transactionDataSource = TransactionDataSource(
+            transactionsData: transactions, rowsPerPage: rowsPerPage);
         isLoading = false;
       });
     }
+  }
+
+  void onSearch(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredTransactions = transactions;
+      } else {
+        filteredTransactions = transactions
+            .where((product) =>
+                product.name.toLowerCase().contains(searchText.toLowerCase()) ||
+                product.categoryName
+                    .toLowerCase()
+                    .contains(searchText.toLowerCase()))
+            .toList();
+      }
+      transactionDataSource = TransactionDataSource(
+          transactionsData: filteredTransactions, rowsPerPage: rowsPerPage);
+    });
   }
 
   @override
@@ -62,7 +95,38 @@ class _AppDataTableState extends State<AppDataTable> {
           borderRadius: BorderRadius.circular(30)),
       child: Column(
         children: [
-          // Data grid container
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Text('Transactions Table :',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (value) => onSearch(value),
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      hintText: 'Search by product name or category',
+                      hintStyle: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.normal,
+                          color: Appcolors.secondTextColor),
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -73,7 +137,7 @@ class _AppDataTableState extends State<AppDataTable> {
                         width: 200,
                         child: Lottie.asset('assets/animations/loading.json')),
                   )
-                else if (usersDataSource != null)
+                else if (transactionDataSource != null)
                   SfDataGridTheme(
                     data: SfDataGridThemeData(
                       gridLineStrokeWidth: 0.5,
@@ -91,10 +155,10 @@ class _AppDataTableState extends State<AppDataTable> {
                       ),
                     ),
                     child: SfDataGrid(
-                      source: usersDataSource!,
+                      allowFiltering: true,
+                      source: transactionDataSource!,
                       columnWidthMode: ColumnWidthMode.fill,
                       allowColumnsResizing: true,
-                      allowFiltering: true,
                       allowSorting: true,
                       gridLinesVisibility: GridLinesVisibility.none,
                       headerGridLinesVisibility: GridLinesVisibility.none,
@@ -113,32 +177,50 @@ class _AppDataTableState extends State<AppDataTable> {
                                       fontSize: 16),
                                 ))),
                         GridColumn(
-                            columnName: 'firstName',
+                            columnName: 'name',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('First Name',
+                                child: Text('Name',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
                         GridColumn(
-                            columnName: 'lastName',
+                            columnName: 'price',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Last Name',
+                                  'Price',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                   overflow: TextOverflow.ellipsis,
                                 ))),
                         GridColumn(
-                            columnName: 'email',
+                            columnName: 'category',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('Email',
+                                child: Text('Category',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)))),
+                        GridColumn(
+                            columnName: 'stock',
+                            label: Container(
+                                padding: EdgeInsets.all(8.0),
+                                alignment: Alignment.center,
+                                child: Text('Stock',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)))),
+                        GridColumn(
+                            columnName: 'minimumStock',
+                            label: Container(
+                                padding: EdgeInsets.all(8.0),
+                                alignment: Alignment.center,
+                                child: Text('Min Stock',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
@@ -177,8 +259,10 @@ class _AppDataTableState extends State<AppDataTable> {
             SizedBox()
           else
             SfDataPager(
-              delegate: usersDataSource!,
-              pageCount: (users.length / rowsPerPage).ceilToDouble(),
+              delegate: transactionDataSource!,
+              pageCount: filteredTransactions.length > 0
+                  ? (filteredTransactions.length / rowsPerPage).ceilToDouble()
+                  : 1,
               direction: Axis.horizontal,
               itemHeight: 35,
               itemWidth: 35,
@@ -189,22 +273,28 @@ class _AppDataTableState extends State<AppDataTable> {
   }
 }
 
-class UsersDataSource extends DataGridSource {
-  UsersDataSource({required List<User> employeeData}) {
-    _employeeData = employeeData
+class TransactionDataSource extends DataGridSource {
+  TransactionDataSource(
+      {required List<Transaction> transactionsData,
+      required this.rowsPerPage}) {
+    _transactionData = transactionsData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'firstName', value: e.firstName),
-              DataGridCell<String>(columnName: 'lastName', value: e.lastName),
-              DataGridCell<String>(columnName: 'email', value: e.email),
+              DataGridCell<String>(columnName: 'name', value: e.name),
+              DataGridCell<double>(columnName: 'price', value: e.price),
+              DataGridCell<String>(
+                  columnName: 'category', value: e.categoryName),
+              DataGridCell<int>(columnName: 'stock', value: e.stock),
+              DataGridCell<int>(
+                  columnName: 'minimumStock', value: e.minimumStock),
               DataGridCell<String>(columnName: 'actions', value: ""),
             ]))
         .toList();
   }
 
-  List<DataGridRow> _employeeData = [];
+  List<DataGridRow> _transactionData = [];
   List<DataGridRow> paginatedData = [];
-
+  int rowsPerPage;
   @override
   List<DataGridRow> get rows => paginatedData;
 
@@ -219,23 +309,38 @@ class UsersDataSource extends DataGridSource {
           child: Container(
             padding: EdgeInsets.all(6.0),
             decoration: BoxDecoration(
-                color: Colors.orange, borderRadius: BorderRadius.circular(5)),
+                color: Appcolors.thirdBlue,
+                borderRadius: BorderRadius.circular(25)),
             child: Text(
               e.value.toString(),
               style: TextStyle(color: Colors.white),
             ),
           ),
         );
+      if (e.columnName == "price")
+        return Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(8.0),
+            child: Text(e.value.toString() + " DT"));
+
       if (e.columnName == "actions")
         return Container(
           alignment: Alignment.center,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
             children: [
-              FaIcon(FontAwesomeIcons.penToSquare),
-              SizedBox(
-                width: 5,
+              FaIcon(
+                FontAwesomeIcons.penToSquare,
+                size: 18,
               ),
-              FaIcon(FontAwesomeIcons.trash)
+              SizedBox(
+                width: 15,
+              ),
+              FaIcon(
+                FontAwesomeIcons.trash,
+                size: 18,
+              )
             ],
           ),
         );
@@ -249,12 +354,13 @@ class UsersDataSource extends DataGridSource {
 
   @override
   Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    int startIndex = newPageIndex * 5;
-    int endIndex = startIndex + 5;
-    if (_employeeData.length < 5)
-      paginatedData = _employeeData.getRange(0, _employeeData.length).toList();
+    int startIndex = newPageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
+    if (_transactionData.length < rowsPerPage)
+      paginatedData =
+          _transactionData.getRange(0, _transactionData.length).toList();
     else
-      paginatedData = _employeeData.getRange(startIndex, endIndex).toList();
+      paginatedData = _transactionData.getRange(startIndex, endIndex).toList();
     notifyListeners();
     return true;
   }

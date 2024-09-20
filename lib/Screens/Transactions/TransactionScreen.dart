@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:point_of_sales/Screens/Transactions/widgets/transactionTable.dart';
 import 'package:point_of_sales/Screens/Users/widgets/AddUserModal.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/PageTitle.dart';
-import 'package:point_of_sales/Utils/AppTable.dart';
 
-class UsersScreen extends StatelessWidget {
-  const UsersScreen({super.key});
+class TransactionScreen extends StatelessWidget {
+  const TransactionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,8 @@ class UsersScreen extends StatelessWidget {
               children: [
                 Expanded(
                     child: Pagetitle(
-                        title: "User Management",
-                        path: "Home  >  User Management")),
+                        title: "Transactions Management",
+                        path: "Home  >  Transaction Table")),
                 Expanded(
                     child: Align(
                   alignment: Alignment.centerRight,
@@ -29,9 +29,9 @@ class UsersScreen extends StatelessWidget {
                     runSpacing: 8,
                     children: [
                       SizedBox(
-                        width: 150,
+                        width: 190,
                         child: AppButtonWithIcon(
-                          text: "Add User",
+                          text: "Add Transaction",
                           onPress: () => showModalBottomSheet<void>(
                             isScrollControlled: true,
                             context: context,
@@ -58,7 +58,7 @@ class UsersScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Expanded(child: AppDataTable())
+            Expanded(child: TransactionTable())
           ],
         ),
       ),

@@ -28,7 +28,7 @@ class Pos extends StatelessWidget {
                     flex: 2,
                     child: Pagetitle(
                         title: "Point of sales",
-                        path: "Home    Point of sales")),
+                        path: "Home  >  Point of sales")),
                 Expanded(
                   flex: 1,
                   child: AppSearchBar(

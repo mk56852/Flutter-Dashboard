@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:point_of_sales/Screens/Category/CategoryScreen.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
 import 'package:point_of_sales/Screens/Financial/FinancialScreen.dart';
 import 'package:point_of_sales/Screens/POS/Pos.dart';
-import 'package:point_of_sales/Screens/Stock/Stock.dart';
+import 'package:point_of_sales/Screens/Product/ProductScreen.dart';
+import 'package:point_of_sales/Screens/Transactions/TransactionScreen.dart';
 import 'package:point_of_sales/Screens/Users/User.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
@@ -42,34 +44,29 @@ class SideBar extends StatelessWidget {
               onClick: () => handleNavigate(UsersScreen()),
             ),
             SideBarItem(
+              text: "Product Management",
+              iconData: FontAwesomeIcons.boxesStacked,
+              onClick: () => handleNavigate(ProductScreen()),
+            ),
+            SideBarItem(
+              text: "Categories",
+              iconData: FontAwesomeIcons.boxArchive,
+              onClick: () => handleNavigate(CategoryScreen()),
+            ),
+            SideBarItem(
+              text: "Transactions",
+              iconData: FontAwesomeIcons.chartLine,
+              onClick: () => handleNavigate(TransactionScreen()),
+            ),
+            SideBarItem(
               text: "Point of Sales",
               iconData: FontAwesomeIcons.cartShopping,
               onClick: () => handleNavigate(Pos()),
             ),
             SideBarItem(
-              text: "Stock Management",
-              iconData: FontAwesomeIcons.boxesStacked,
-              onClick: () => handleNavigate(StockScreen()),
-            ),
-            SideBarItem(
               text: "Financial",
               iconData: FontAwesomeIcons.moneyBill1,
               onClick: () => handleNavigate(FinancialScreen()),
-            ),
-            SideBarItem(
-              text: "Products",
-              iconData: FontAwesomeIcons.boxOpen,
-              onClick: () => handleNavigate(Pos()),
-            ),
-            SideBarItem(
-              text: "Reservations",
-              iconData: FontAwesomeIcons.calendar,
-              onClick: () => handleNavigate(Pos()),
-            ),
-            SideBarItem(
-              text: "Sales",
-              iconData: FontAwesomeIcons.chartLine,
-              onClick: () => handleNavigate(Pos()),
             ),
           ],
         ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/Screens/Dashboard/Dashbaord.dart';
+import 'package:point_of_sales/Screens/Dashboard/Widgets/AppStackedLine.dart';
 import 'package:point_of_sales/Screens/Financial/widgets/AppLineBar2.dart';
+import 'package:point_of_sales/Screens/Financial/widgets/MoneyBadget.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/SharedWidget/NumberWidget.dart';
+import 'package:point_of_sales/SharedWidget/PageTitle.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
-import 'package:point_of_sales/Utils/AppDimension.dart';
 
 class FinancialScreen extends StatelessWidget {
   const FinancialScreen({super.key});
@@ -15,11 +17,44 @@ class FinancialScreen extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          InfoBarWidget(data: infoList),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Pagetitle(
+                  title: "Financial Dashboard",
+                  path: "Financial    >    Dashboard"),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Wrap(
+            children: [
+              AppContainer(
+                width: 400,
+                child: MoneyBadget(
+                  amount: 500.00,
+                  title: "Total amount spent",
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              AppContainer(
+                width: 400,
+                child: MoneyBadget(
+                  amount: 500.00,
+                  isOut: true,
+                  title: "Total amount got",
+                ),
+              )
+            ],
+          ),
           AppContainer(
             height: 500,
             width: 500,
-            child: AppLineBar2(),
+            child: AppStackedLine(),
           )
         ],
       ),

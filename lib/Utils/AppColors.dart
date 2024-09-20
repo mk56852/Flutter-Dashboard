@@ -12,5 +12,5 @@ class Appcolors {
   static Color thirdBlue = const Color.fromRGBO(150, 192, 255, 1);
   static Color lastBlue = const Color.fromRGBO(222, 234, 255, 1);
   static Color mainGreen = const Color.fromRGBO(252, 171, 62, 1);
-  static Color secondTextColor = const Color.fromRGBO(128, 136, 158, 1);
+  static Color secondTextColor = const Color.fromRGBO(100, 100, 100, 1);
 }
