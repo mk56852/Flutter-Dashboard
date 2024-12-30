@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:point_of_sales/Models/Product.dart';
+import 'package:point_of_sales/Screens/Product/widgets/UpdateProductModal.dart';
 import 'package:point_of_sales/Services/Api.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -15,10 +16,10 @@ class ProductsTable extends StatefulWidget {
   ProductsTable({Key? key}) : super(key: key);
 
   @override
-  _ProductsTableState createState() => _ProductsTableState();
+  ProductsTableState createState() => ProductsTableState();
 }
 
-class _ProductsTableState extends State<ProductsTable> {
+class ProductsTableState extends State<ProductsTable> {
   ApiService service = new ApiService();
   List<Product> products = <Product>[];
   List<Product> filteredProducts = <Product>[];
@@ -26,56 +27,42 @@ class _ProductsTableState extends State<ProductsTable> {
   bool isLoading = true;
   final int rowsPerPage = 7;
   TextEditingController searchController = TextEditingController();
+  final ValueNotifier<bool> refreshNotifier = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
-    products.add(
-        Product(12, "product1", 12, Productstatus.InStock, 25, 5, "glace"));
-    products.add(
-        Product(13, "product2", 15, Productstatus.LowStock, 12, 10, "Pizza"));
-    products.add(Product(
-        18, "product3", 15, Productstatus.OutOfStock, 0, 10, "boisson"));
-    products.add(
-        Product(12, "product1", 12, Productstatus.InStock, 25, 5, "glace"));
-    products.add(
-        Product(13, "product2", 15, Productstatus.LowStock, 12, 10, "Pizza"));
-    products.add(Product(
-        18, "product3", 15, Productstatus.OutOfStock, 0, 10, "boisson"));
-    products.add(
-        Product(12, "product1", 12, Productstatus.InStock, 25, 5, "glace"));
-    products.add(
-        Product(13, "product2", 15, Productstatus.LowStock, 12, 10, "Pizza"));
-    products.add(Product(
-        18, "product3", 15, Productstatus.OutOfStock, 0, 10, "boisson"));
-    isLoading = false;
-    filteredProducts = products;
-    productDataSource = ProductDataSource(
-        productData: filteredProducts, rowsPerPage: rowsPerPage);
-    //fetchData();
+    fetchData();
+    refreshNotifier.addListener(() {
+      fetchData();
+    });
+  }
+
+  void refreshData() {
+    fetchData();
   }
 
   Future<void> fetchData() async {
-    dynamic response =
-        await http.get(Uri.parse(AppConfig.apiBaseUrl + "api/users"));
-    print(response.body);
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      Future.delayed(
-          Duration(seconds: 2),
-          () => setState(() {
-                products = jsonResponse
-                    .map((product) => Product.fromJson(product))
-                    .toList();
-                productDataSource = ProductDataSource(
-                    productData: products, rowsPerPage: rowsPerPage);
-                isLoading = false;
-              }));
+    ApiResponse response = await ApiService.getProducts();
+
+    if (response.status == 200) {
+      setState(() {
+        products = response.data;
+        productDataSource = ProductDataSource(
+            context: context,
+            refreshNotifier: refreshNotifier,
+            productData: products,
+            rowsPerPage: rowsPerPage);
+        isLoading = false;
+      });
     } else {
       setState(() {
         products = [];
-        productDataSource =
-            ProductDataSource(productData: products, rowsPerPage: rowsPerPage);
+        productDataSource = ProductDataSource(
+            refreshNotifier: refreshNotifier,
+            productData: products,
+            rowsPerPage: rowsPerPage,
+            context: context);
         isLoading = false;
       });
     }
@@ -95,7 +82,10 @@ class _ProductsTableState extends State<ProductsTable> {
             .toList();
       }
       productDataSource = ProductDataSource(
-          productData: filteredProducts, rowsPerPage: rowsPerPage);
+          refreshNotifier: refreshNotifier,
+          context: context,
+          productData: filteredProducts,
+          rowsPerPage: rowsPerPage);
     });
   }
 
@@ -296,8 +286,13 @@ class _ProductsTableState extends State<ProductsTable> {
 }
 
 class ProductDataSource extends DataGridSource {
+  BuildContext context;
+  final ValueNotifier<bool> refreshNotifier;
   ProductDataSource(
-      {required List<Product> productData, required this.rowsPerPage}) {
+      {required List<Product> productData,
+      required this.refreshNotifier,
+      required this.rowsPerPage,
+      required this.context}) {
     _productData = productData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
@@ -342,6 +337,21 @@ class ProductDataSource extends DataGridSource {
     );
   }
 
+  Future<void> deleteProd(int id) async {
+    ApiResponse response = await ApiService.deleteProduct(id);
+
+    if (response.status == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Product is deleted!")),
+      );
+      // notifyListeners();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete product!")),
+      );
+    }
+  }
+
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
@@ -376,17 +386,65 @@ class ProductDataSource extends DataGridSource {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              FaIcon(
-                FontAwesomeIcons.penToSquare,
-                size: 18,
+              InkWell(
+                onTap: () async {
+                  // Get the user data from the row
+                  final id = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'id')
+                      .value as int;
+                  final name = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'name')
+                      .value as String;
+
+                  final price = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'price')
+                      .value as double;
+
+                  final stock = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'stock')
+                      .value as int;
+
+                  final minS = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'minimumStock')
+                      .value as int;
+
+                  showModalBottomSheet<void>(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return UpdateProductModal(
+                        refreshNotifier: refreshNotifier,
+                        id: id.toString(),
+                        categData: {
+                          'name': name,
+                          "price": price,
+                          "stock": stock,
+                          "minimumStock": minS,
+                        },
+                      );
+                    },
+                  );
+                },
+                child: FaIcon(FontAwesomeIcons.penToSquare),
               ),
               SizedBox(
                 width: 15,
               ),
-              FaIcon(
-                FontAwesomeIcons.trash,
-                size: 18,
-              )
+              InkWell(
+                  onTap: () async {
+                    final id = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'id')
+                        .value as int;
+                    await deleteProd(id);
+                    refreshNotifier.value = !refreshNotifier.value;
+                  },
+                  child: FaIcon(FontAwesomeIcons.trash))
             ],
           ),
         );

@@ -1,13 +1,24 @@
 class User {
   final int id;
   final String firstName;
-  final String lastName;
-  final String email;
-  final String cart_id;
+  final String? lastName; // Nullable
+  final String? email;
+  final String role;
 
-  User(this.id, this.firstName, this.lastName, this.email, this.cart_id);
+  User(
+      {required this.id,
+      required this.firstName,
+      this.lastName,
+      this.email,
+      required this.role});
+
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(json['id'], json['firstName'], json['lastName'], json['email'],
-        json['cart']["uuid"]);
+    return User(
+      id: json['id'] as int,
+      firstName: json['firstName'] as String,
+      lastName: json['lastName'] as String?, // Handle null
+      email: json['email'] as String?,
+      role: json['role'] as String,
+    );
   }
 }

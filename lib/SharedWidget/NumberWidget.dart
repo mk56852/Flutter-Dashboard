@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
-import 'package:point_of_sales/Utils/AppDimension.dart';
 
 class NumberWidget extends StatelessWidget {
   String title;

@@ -22,7 +22,7 @@ class AppContainer extends StatelessWidget {
       this.constraints,
       this.bgColor,
       this.borderColor,
-      this.elevation = 0,
+      this.elevation = 2,
       required this.child});
 
   @override

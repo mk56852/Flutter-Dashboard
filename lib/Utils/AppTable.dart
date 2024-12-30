@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:point_of_sales/Models/User.dart';
+import 'package:point_of_sales/Screens/Users/widgets/UpdateUserModal.dart';
 import 'package:point_of_sales/Services/Api.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -14,40 +15,48 @@ class AppDataTable extends StatefulWidget {
   AppDataTable({Key? key}) : super(key: key);
 
   @override
-  _AppDataTableState createState() => _AppDataTableState();
+  AppDataTableState createState() => AppDataTableState();
 }
 
-class _AppDataTableState extends State<AppDataTable> {
-  ApiService service = new ApiService();
+class AppDataTableState extends State<AppDataTable> {
   List<User> users = <User>[];
   UsersDataSource? usersDataSource;
   bool isLoading = true;
-  final int rowsPerPage = 5;
+  final int rowsPerPage = 7;
+  final ValueNotifier<bool> refreshNotifier =
+      ValueNotifier(false); // Add notifier
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    refreshNotifier.addListener(() {
+      fetchData();
+    });
+  }
+
+  void refreshData() {
+    fetchData();
   }
 
   Future<void> fetchData() async {
-    dynamic response =
-        await http.get(Uri.parse(AppConfig.apiBaseUrl + "api/users"));
-    print(response.body);
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      Future.delayed(
-          Duration(seconds: 2),
-          () => setState(() {
-                users =
-                    jsonResponse.map((user) => User.fromJson(user)).toList();
-                usersDataSource = UsersDataSource(employeeData: users);
-                isLoading = false;
-              }));
+    ApiResponse response = await ApiService.getUsers();
+    if (response.status == 200) {
+      setState(() {
+        users = response.data;
+        usersDataSource = UsersDataSource(
+            employeeData: users,
+            refreshNotifier: refreshNotifier,
+            context: context);
+        isLoading = false;
+      });
     } else {
       setState(() {
         users = [];
-        usersDataSource = UsersDataSource(employeeData: users);
+        usersDataSource = UsersDataSource(
+            employeeData: users,
+            refreshNotifier: refreshNotifier,
+            context: context);
         isLoading = false;
       });
     }
@@ -143,6 +152,15 @@ class _AppDataTableState extends State<AppDataTable> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
                         GridColumn(
+                            columnName: 'role',
+                            label: Container(
+                                padding: EdgeInsets.all(8.0),
+                                alignment: Alignment.center,
+                                child: Text('Role',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)))),
+                        GridColumn(
                             columnName: 'actions',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
@@ -178,7 +196,9 @@ class _AppDataTableState extends State<AppDataTable> {
           else
             SfDataPager(
               delegate: usersDataSource!,
-              pageCount: (users.length / rowsPerPage).ceilToDouble(),
+              pageCount: users.length > 0
+                  ? (users.length / rowsPerPage).ceilToDouble()
+                  : 1,
               direction: Axis.horizontal,
               itemHeight: 35,
               itemWidth: 35,
@@ -190,16 +210,23 @@ class _AppDataTableState extends State<AppDataTable> {
 }
 
 class UsersDataSource extends DataGridSource {
-  UsersDataSource({required List<User> employeeData}) {
+  BuildContext context;
+  final ValueNotifier<bool> refreshNotifier;
+  UsersDataSource(
+      {required List<User> employeeData,
+      required this.refreshNotifier,
+      required this.context}) {
     _employeeData = employeeData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
               DataGridCell<String>(columnName: 'firstName', value: e.firstName),
               DataGridCell<String>(columnName: 'lastName', value: e.lastName),
               DataGridCell<String>(columnName: 'email', value: e.email),
+              DataGridCell<String>(columnName: 'role', value: e.role),
               DataGridCell<String>(columnName: 'actions', value: ""),
             ]))
         .toList();
+    paginatedData = _employeeData.getRange(0, _employeeData.length).toList();
   }
 
   List<DataGridRow> _employeeData = [];
@@ -207,6 +234,18 @@ class UsersDataSource extends DataGridSource {
 
   @override
   List<DataGridRow> get rows => paginatedData;
+
+  Future<void> deleteUser(int id) async {
+    ApiResponse response = await ApiService.deleteUser(id);
+
+    if (response.status == 200) {
+      _employeeData.removeWhere((row) => row
+          .getCells()
+          .any((cell) => cell.columnName == 'id' && cell.value == id));
+      paginatedData = _employeeData;
+      notifyListeners();
+    }
+  }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
@@ -227,16 +266,70 @@ class UsersDataSource extends DataGridSource {
           ),
         );
       if (e.columnName == "actions")
-        return Container(
-          alignment: Alignment.center,
-          child: Row(
-            children: [
-              FaIcon(FontAwesomeIcons.penToSquare),
-              SizedBox(
-                width: 5,
-              ),
-              FaIcon(FontAwesomeIcons.trash)
-            ],
+        return Center(
+          child: Container(
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () async {
+                    // Get the user data from the row
+                    final id = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'id')
+                        .value as int;
+                    final firstName = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'firstName')
+                        .value as String;
+                    final lastName = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'lastName')
+                        .value as String;
+                    final email = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'email')
+                        .value as String;
+                    final role = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'role')
+                        .value as String;
+
+                    // Show the UpdateUserModal with the current user data
+                    showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return UpdateUserModal(
+                          refreshNotifier: refreshNotifier,
+                          userId: id.toString(),
+                          userData: {
+                            'firstName': firstName,
+                            'lastName': lastName,
+                            'email': email,
+                            'role': role,
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: FaIcon(FontAwesomeIcons.penToSquare),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                InkWell(
+                    onTap: () async {
+                      final id = row
+                          .getCells()
+                          .firstWhere((cell) => cell.columnName == 'id')
+                          .value as int;
+                      await deleteUser(id);
+                      refreshNotifier.value = !refreshNotifier.value;
+                    },
+                    child: FaIcon(FontAwesomeIcons.trash))
+              ],
+            ),
           ),
         );
       return Container(
@@ -249,12 +342,17 @@ class UsersDataSource extends DataGridSource {
 
   @override
   Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    int startIndex = newPageIndex * 5;
-    int endIndex = startIndex + 5;
-    if (_employeeData.length < 5)
-      paginatedData = _employeeData.getRange(0, _employeeData.length).toList();
-    else
-      paginatedData = _employeeData.getRange(startIndex, endIndex).toList();
+    int startIndex = newPageIndex * 6;
+    int endIndex = startIndex + 6;
+
+    // Ensure the endIndex does not exceed the length of _employeeData
+    endIndex =
+        endIndex > _employeeData.length ? _employeeData.length : endIndex;
+
+    // Safely update paginatedData
+    paginatedData = _employeeData.getRange(startIndex, endIndex).toList();
+
+    // Notify listeners to rebuild the data grid
     notifyListeners();
     return true;
   }

@@ -45,6 +45,7 @@ dependencies:
   syncfusion_flutter_datagrid: ^27.1.48
   lottie: ^3.1.2
   flutter_form_builder: ^9.5.0
+  form_builder_validators: ^11.0.0
 
 dev_dependencies:
   flutter_test:

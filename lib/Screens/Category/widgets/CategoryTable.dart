@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:point_of_sales/Models/Category.dart';
-import 'package:point_of_sales/Models/Transaction.dart';
+import 'package:point_of_sales/Screens/Category/widgets/UpdateCategoryModal.dart';
 import 'package:point_of_sales/Services/Api.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -16,54 +16,52 @@ class CategoryTable extends StatefulWidget {
   CategoryTable({Key? key}) : super(key: key);
 
   @override
-  _CategoryTableState createState() => _CategoryTableState();
+  CategoryTableState createState() => CategoryTableState();
 }
 
-class _CategoryTableState extends State<CategoryTable> {
+class CategoryTableState extends State<CategoryTable> {
   ApiService service = new ApiService();
   List<Category> categories = <Category>[];
   List<Category> filteredCategories = <Category>[];
   CategoryDataSource? categoryDataSource;
   bool isLoading = true;
-  final int rowsPerPage = 7;
+  final int rowsPerPage = 5;
   TextEditingController searchController = TextEditingController();
+  final ValueNotifier<bool> refreshNotifier = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
-    categories.add(Category.build(12, "product1", "glace"));
-    categories.add(Category.build(12, "product1", "glace"));
+    fetchData();
+    refreshNotifier.addListener(() {
+      fetchData();
+    });
+  }
 
-    categories.add(Category.build(12, "product1", "glace"));
-
-    isLoading = false;
-    filteredCategories = categories;
-    categoryDataSource = CategoryDataSource(
-        categoriesData: filteredCategories, rowsPerPage: rowsPerPage);
-    //fetchData();
+  void refreshData() {
+    fetchData();
   }
 
   Future<void> fetchData() async {
-    dynamic response =
-        await http.get(Uri.parse(AppConfig.apiBaseUrl + "api/users"));
-    print(response.body);
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      Future.delayed(
-          Duration(seconds: 2),
-          () => setState(() {
-                categories = jsonResponse
-                    .map((category) => Category.fromJson(category))
-                    .toList();
-                categoryDataSource = CategoryDataSource(
-                    categoriesData: categories, rowsPerPage: rowsPerPage);
-                isLoading = false;
-              }));
+    ApiResponse response = await ApiService.getCategories();
+    if (response.status == 200) {
+      setState(() {
+        categories = response.data;
+        categoryDataSource = CategoryDataSource(
+            context: context,
+            categoriesData: categories,
+            rowsPerPage: rowsPerPage,
+            refreshNotifier: refreshNotifier);
+        isLoading = false;
+      });
     } else {
       setState(() {
         categories = [];
         categoryDataSource = CategoryDataSource(
-            categoriesData: categories, rowsPerPage: rowsPerPage);
+            context: context,
+            categoriesData: categories,
+            rowsPerPage: rowsPerPage,
+            refreshNotifier: refreshNotifier);
         isLoading = false;
       });
     }
@@ -80,7 +78,10 @@ class _CategoryTableState extends State<CategoryTable> {
             .toList();
       }
       categoryDataSource = CategoryDataSource(
-          categoriesData: filteredCategories, rowsPerPage: rowsPerPage);
+          context: context,
+          categoriesData: filteredCategories,
+          rowsPerPage: rowsPerPage,
+          refreshNotifier: refreshNotifier);
     });
   }
 
@@ -231,8 +232,8 @@ class _CategoryTableState extends State<CategoryTable> {
           else
             SfDataPager(
               delegate: categoryDataSource!,
-              pageCount: filteredCategories.length > 0
-                  ? (filteredCategories.length / rowsPerPage).ceilToDouble()
+              pageCount: categories.length > 0
+                  ? (categories.length / rowsPerPage).ceilToDouble()
                   : 1,
               direction: Axis.horizontal,
               itemHeight: 35,
@@ -245,8 +246,14 @@ class _CategoryTableState extends State<CategoryTable> {
 }
 
 class CategoryDataSource extends DataGridSource {
-  CategoryDataSource(
-      {required List<Category> categoriesData, required this.rowsPerPage}) {
+  BuildContext context;
+  final ValueNotifier<bool> refreshNotifier;
+  CategoryDataSource({
+    required this.context,
+    required List<Category> categoriesData,
+    required this.rowsPerPage,
+    required this.refreshNotifier,
+  }) {
     _transactionData = categoriesData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
@@ -255,13 +262,52 @@ class CategoryDataSource extends DataGridSource {
               DataGridCell<String>(columnName: 'actions', value: ""),
             ]))
         .toList();
+
+    // Initialize paginated data based on the first page and rowsPerPage
+    int endIndex = rowsPerPage < _transactionData.length
+        ? rowsPerPage
+        : _transactionData.length;
+    paginatedData = _transactionData.getRange(0, endIndex).toList();
   }
 
   List<DataGridRow> _transactionData = [];
   List<DataGridRow> paginatedData = [];
-  int rowsPerPage;
+  final int rowsPerPage;
+
   @override
   List<DataGridRow> get rows => paginatedData;
+
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    int startIndex = newPageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
+
+    // Ensure the endIndex does not exceed the length of _transactionData
+    endIndex =
+        endIndex > _transactionData.length ? _transactionData.length : endIndex;
+
+    // Update paginatedData based on new indices
+    paginatedData = _transactionData.getRange(startIndex, endIndex).toList();
+
+    // Notify listeners to rebuild the data grid
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> deleteCateg(int id) async {
+    ApiResponse response = await ApiService.deleteCategory(id);
+    if (response.status == 200) {
+      print('category deleted successfully');
+
+      _transactionData.removeWhere((row) => row
+          .getCells()
+          .any((cell) => cell.columnName == 'id' && cell.value == id));
+      paginatedData = _transactionData;
+      notifyListeners();
+    } else {
+      print('Failed to delete Category');
+    }
+  }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
@@ -295,17 +341,47 @@ class CategoryDataSource extends DataGridSource {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              FaIcon(
-                FontAwesomeIcons.penToSquare,
-                size: 18,
+              InkWell(
+                onTap: () async {
+                  // Get the user data from the row
+                  final id = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'id')
+                      .value as int;
+                  final name = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'name')
+                      .value as String;
+
+                  showModalBottomSheet<void>(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return UpdateCategoryModal(
+                        refreshNotifier: refreshNotifier,
+                        categId: id.toString(),
+                        categData: {
+                          'name': name,
+                        },
+                      );
+                    },
+                  );
+                },
+                child: FaIcon(FontAwesomeIcons.penToSquare),
               ),
               SizedBox(
                 width: 15,
               ),
-              FaIcon(
-                FontAwesomeIcons.trash,
-                size: 18,
-              )
+              InkWell(
+                  onTap: () async {
+                    final id = row
+                        .getCells()
+                        .firstWhere((cell) => cell.columnName == 'id')
+                        .value as int;
+                    await deleteCateg(id);
+                    refreshNotifier.value = !refreshNotifier.value;
+                  },
+                  child: FaIcon(FontAwesomeIcons.trash))
             ],
           ),
         );
@@ -315,18 +391,5 @@ class CategoryDataSource extends DataGridSource {
         child: Text(e.value.toString()),
       );
     }).toList());
-  }
-
-  @override
-  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    int startIndex = newPageIndex * rowsPerPage;
-    int endIndex = startIndex + rowsPerPage;
-    if (_transactionData.length < rowsPerPage)
-      paginatedData =
-          _transactionData.getRange(0, _transactionData.length).toList();
-    else
-      paginatedData = _transactionData.getRange(startIndex, endIndex).toList();
-    notifyListeners();
-    return true;
   }
 }

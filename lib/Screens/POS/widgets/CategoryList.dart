@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/Models/Category.dart';
-import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
 List categories = [
@@ -53,14 +51,14 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         });
       },
       child: Padding(
-        padding: EdgeInsets.only(right: 15),
+        padding: const EdgeInsets.only(right: 15),
         child: Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Appcolors.borderColor, width: 1),
                 borderRadius: BorderRadius.circular(10)),
             padding: EdgeInsets.symmetric(horizontal: 10),
-            constraints:
-                BoxConstraints(maxWidth: 150, minWidth: 30, minHeight: 50),
+            constraints: const BoxConstraints(
+                maxWidth: 150, minWidth: 30, minHeight: 50),
             child: Row(
               children: [
                 SizedBox(
@@ -71,7 +69,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Expanded(

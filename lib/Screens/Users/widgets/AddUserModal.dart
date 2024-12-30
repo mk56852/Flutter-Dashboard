@@ -1,15 +1,71 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:point_of_sales/Configuration/AppConfig.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/PageTitle.dart';
-import 'package:point_of_sales/Utils/AppColors.dart';
+
+import 'package:http/http.dart' as http;
 
 class AddUserModal extends StatelessWidget {
-  const AddUserModal({super.key});
+  final VoidCallback onUserAdded; // Callback function to notify parent
+
+  const AddUserModal({super.key, required this.onUserAdded});
 
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormBuilderState>();
+
+    Future<void> _submitForm(BuildContext context) async {
+      if (_formKey.currentState?.saveAndValidate() ?? false) {
+        final formData = _formKey.currentState?.value;
+
+        // Construct the user data to be sent
+        final userData = {
+          "firstName": formData?['firstName'],
+          "lastName": formData?['lastName'],
+          "email": formData?['email'],
+          "phoneNumber": formData?['phoneNumber'],
+          "role": formData?['role'] == "simple user" ? 1 : 0,
+        };
+
+        try {
+          // Send POST request
+          final response = await http.post(
+            Uri.parse(AppConfig.apiBaseUrl + 'api/users'),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: jsonEncode(userData),
+          );
+
+          if (response.statusCode == 200) {
+            // Successfully created user
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("User successfully added!")),
+            );
+
+            onUserAdded(); // Notify parent to refresh the table
+            Navigator.pop(context);
+          } else {
+            // Handle error
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed to add user: ${response.body}")),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error: $e")),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please complete the form.")),
+        );
+      }
+    }
+
     return Container(
       constraints: BoxConstraints(maxHeight: 600, maxWidth: 1000),
       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 50),
@@ -23,81 +79,47 @@ class AddUserModal extends StatelessWidget {
             FormBuilderTextField(
               name: 'firstName',
               decoration: InputDecoration(
-                  labelText: 'firstName',
-                  prefixIcon: Icon(Icons.person_2_outlined),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                      fontSize: 13, color: Appcolors.secondTextColor)),
-              onChanged: (val) {},
+                  labelText: 'First Name',
+                  prefixIcon: Icon(Icons.person),
+                  border: OutlineInputBorder()),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             FormBuilderTextField(
               name: 'lastName',
               decoration: InputDecoration(
-                  labelText: 'lastName',
-                  prefixIcon: Icon(Icons.person_2_outlined),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                      fontSize: 13, color: Appcolors.secondTextColor)),
-              onChanged: (val) {},
+                  labelText: 'Last Name',
+                  prefixIcon: Icon(Icons.person_outline),
+                  border: OutlineInputBorder()),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             FormBuilderTextField(
               name: 'email',
               decoration: InputDecoration(
-                  labelText: 'email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
-                  labelStyle: TextStyle(
-                      fontSize: 13, color: Appcolors.secondTextColor)),
-              onChanged: (val) {},
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder()),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             FormBuilderTextField(
               name: 'phoneNumber',
               decoration: InputDecoration(
-                  labelText: 'phoneNumber',
-                  border: OutlineInputBorder(),
+                  labelText: 'Phone Number',
                   prefixIcon: Icon(Icons.phone),
-                  labelStyle: TextStyle(
-                      fontSize: 13, color: Appcolors.secondTextColor)),
-              onChanged: (val) {},
+                  border: OutlineInputBorder()),
             ),
-            SizedBox(
-              height: 30,
-            ),
+            SizedBox(height: 20),
             FormBuilderChoiceChip(
               name: "role",
-              decoration: InputDecoration(
-                border: InputBorder.none,
-              ),
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              showCheckmark: true,
               options: [
-                FormBuilderChipOption(
-                  value: "admin",
-                ),
-                FormBuilderChipOption(
-                  value: "simple user",
-                ),
+                FormBuilderChipOption(value: "admin"),
+                FormBuilderChipOption(value: "simple user"),
               ],
             ),
-            Expanded(
-              child: Container(
-                alignment: Alignment.bottomRight,
-                child: AppButtonWithIcon(
-                  text: "Save And submit",
-                  onPress: () => Navigator.pop(context),
-                  icon: Icons.add_box_outlined,
-                ),
-              ),
+            SizedBox(height: 30),
+            AppButtonWithIcon(
+              text: "Save and Submit",
+              onPress: () => _submitForm(context),
+              icon: Icons.add_box_outlined,
             ),
           ],
         ),

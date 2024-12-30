@@ -5,7 +5,14 @@ import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/PageTitle.dart';
 
 class CategoryScreen extends StatelessWidget {
-  const CategoryScreen({super.key});
+  final GlobalKey<CategoryTableState> _categoryTableKey =
+      GlobalKey<CategoryTableState>();
+
+  CategoryScreen({super.key});
+
+  void _refreshTable() {
+    _categoryTableKey.currentState?.refreshData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +42,8 @@ class CategoryScreen extends StatelessWidget {
                             isScrollControlled: true,
                             context: context,
                             builder: (BuildContext context) {
-                              return AddCategoryModal();
+                              return AddCategoryModal(
+                                  onAddingCateg: _refreshTable);
                             },
                           ),
                           icon: Icons.add_box_outlined,
@@ -49,7 +57,7 @@ class CategoryScreen extends StatelessWidget {
             SizedBox(
               height: 20,
             ),
-            Expanded(child: CategoryTable())
+            Expanded(child: CategoryTable(key: _categoryTableKey))
           ],
         ),
       ),

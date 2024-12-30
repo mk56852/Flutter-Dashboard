@@ -36,7 +36,7 @@ class TransactionScreen extends StatelessWidget {
                             isScrollControlled: true,
                             context: context,
                             builder: (BuildContext context) {
-                              return AddUserModal();
+                              return Container();
                             },
                           ),
                           icon: Icons.add_box_outlined,

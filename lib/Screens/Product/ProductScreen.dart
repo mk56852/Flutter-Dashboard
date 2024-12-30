@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:point_of_sales/Models/Category.dart';
 import 'package:point_of_sales/Screens/Dashboard/Widgets/PieChart.dart';
+import 'package:point_of_sales/Screens/Product/widgets/AddProductModal.dart';
 import 'package:point_of_sales/Screens/Product/widgets/AppRowBarCharts.dart';
 import 'package:point_of_sales/Screens/Product/widgets/ProductsTable.dart';
+import 'package:point_of_sales/Services/Api.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
 import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/SharedWidget/NumberWidget.dart';
@@ -10,7 +13,22 @@ import 'package:point_of_sales/SharedWidget/PageTitle.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
 class ProductScreen extends StatelessWidget {
-  const ProductScreen({super.key});
+  final GlobalKey<ProductsTableState> _prodGlobalKey =
+      GlobalKey<ProductsTableState>();
+  ProductScreen({super.key});
+  void _refreshTable() {
+    _prodGlobalKey.currentState?.refreshData();
+  }
+
+  Future<List<Category>> fetchProductTypes() async {
+    ApiResponse response = await ApiService.getCategories();
+
+    if (response.status == 200) {
+      return response.data;
+    } else {
+      throw Exception("Failed to fetch product types");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +53,24 @@ class ProductScreen extends StatelessWidget {
                       width: 160,
                       child: AppButtonWithIcon(
                         text: "Add Product",
-                        onPress: () => print("he"),
+                        onPress: () => showModalBottomSheet<void>(
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return FutureBuilder<List<Category>>(
+                                future: fetchProductTypes(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return CircularProgressIndicator();
+                                  }
+
+                                  return AddProductModal(
+                                      onAddingCateg: _refreshTable,
+                                      categories: snapshot.data!);
+                                });
+                          },
+                        ),
                         icon: Icons.add_box_outlined,
                       ),
                     ),
@@ -61,7 +96,9 @@ class ProductScreen extends StatelessWidget {
           ),
           SizedBox(
             height: 600,
-            child: ProductsTable(),
+            child: ProductsTable(
+              key: _prodGlobalKey,
+            ),
           ),
           SizedBox(
             height: 20,

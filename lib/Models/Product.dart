@@ -10,8 +10,22 @@ class Product {
   Product(this.id, this.name, this.price, this.status, this.stock,
       this.minimumStock, this.categoryName);
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(json['id'], json['name'], json['price'], json['status'],
-        json['stock'], json['minimumStock'], json["categoryName"]);
+    String status = json['status'];
+    Productstatus s;
+    switch (status) {
+      case 'InStock':
+        s = Productstatus.InStock;
+      case 'LowStock':
+        s = Productstatus.LowStock;
+      case 'OutOfStock':
+        s = Productstatus.OutOfStock;
+      case 'NoStockable':
+        s = Productstatus.NoStockable;
+      default:
+        throw Exception('Unknown ProductStatus: $status');
+    }
+    return Product(json['id'], json['name'], json['price'], s, json['stock'],
+        json['minimumStock'], json["categoryName"]);
   }
 }
 

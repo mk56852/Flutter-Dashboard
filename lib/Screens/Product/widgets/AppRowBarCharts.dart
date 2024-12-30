@@ -17,11 +17,15 @@ class AppRowBarChartState extends State<AppRowBarChart> {
   @override
   void initState() {
     data = [
-      _ChartData('CHN', 12),
-      _ChartData('GER', 15),
-      _ChartData('RUS', 30),
-      _ChartData('BRZ', 6.4),
-      _ChartData('IND', 14)
+      _ChartData('Boisson', 12),
+      _ChartData('Pizzas', 15),
+      _ChartData('Choco', 30),
+      _ChartData('Glace', 14),
+      _ChartData('Biscuit', 14),
+      _ChartData('aaze', 15),
+      _ChartData('kok', 30),
+      _ChartData('xa', 14),
+      _ChartData('ax', 14)
     ];
     _tooltip = TooltipBehavior(enable: true);
     super.initState();
