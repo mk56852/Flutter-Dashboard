@@ -14,7 +14,7 @@ class Pagetitle extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
           ),
           SizedBox(
             height: 6,
@@ -22,7 +22,7 @@ class Pagetitle extends StatelessWidget {
           Text(
             path,
             style: TextStyle(
-                fontSize: 13, fontWeight: FontWeight.w400, color: Colors.grey),
+                fontSize: 14, fontWeight: FontWeight.w400, color: Colors.grey),
           ),
         ],
       ),

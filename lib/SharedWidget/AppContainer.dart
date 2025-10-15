@@ -22,7 +22,7 @@ class AppContainer extends StatelessWidget {
       this.constraints,
       this.bgColor,
       this.borderColor,
-      this.elevation = 0,
+      this.elevation = 2,
       required this.child});
 
   @override
@@ -31,8 +31,7 @@ class AppContainer extends StatelessWidget {
     Color border = borderColor ?? Appcolors.borderColor;
     return Material(
       elevation: elevation,
-      color: bg,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(18),
       child: Container(
         height: height,
         width: width,
@@ -42,7 +41,7 @@ class AppContainer extends StatelessWidget {
         decoration: BoxDecoration(
             color: bg,
             border: Border.all(color: border, width: 1),
-            borderRadius: BorderRadius.circular(10)),
+            borderRadius: BorderRadius.circular(18)),
         child: child,
       ),
     );

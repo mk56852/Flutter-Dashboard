@@ -1,30 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:point_of_sales/Models/Category.dart';
-import 'package:point_of_sales/SharedWidget/AppContainer.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
-List categories = [
-  Category(name: "Categoryazazaze 1", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 2", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Cate 3", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 4", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Categaaaaaaa 5", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 6", icon: FontAwesomeIcons.addressCard),
-  Category(name: "Category 7", icon: FontAwesomeIcons.addressCard),
-];
-
 class CategoryList extends StatelessWidget {
-  const CategoryList({super.key});
+  List<Category> categories;
+  CategoryList({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children:
-              categories.map((item) => CategoryWidget(category: item)).toList(),
-        ));
+    return Container(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        children:
+            categories.map((item) => CategoryWidget(category: item)).toList(),
+      ),
+    );
   }
 }
 
@@ -53,14 +44,14 @@ class _CategoryWidgetState extends State<CategoryWidget> {
         });
       },
       child: Padding(
-        padding: EdgeInsets.only(right: 15),
+        padding: const EdgeInsets.only(right: 15),
         child: Container(
             decoration: BoxDecoration(
                 border: Border.all(color: Appcolors.borderColor, width: 1),
-                borderRadius: BorderRadius.circular(6)),
+                borderRadius: BorderRadius.circular(10)),
             padding: EdgeInsets.symmetric(horizontal: 10),
-            constraints:
-                BoxConstraints(maxWidth: 150, minWidth: 30, minHeight: 50),
+            constraints: const BoxConstraints(
+                maxWidth: 150, minWidth: 30, minHeight: 50),
             child: Row(
               children: [
                 SizedBox(
@@ -71,7 +62,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Expanded(

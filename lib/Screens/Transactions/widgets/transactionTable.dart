@@ -3,63 +3,87 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:point_of_sales/Models/User.dart';
-import 'package:point_of_sales/Screens/Users/widgets/UpdateUserModal.dart';
+import 'package:point_of_sales/Models/Transaction.dart';
 import 'package:point_of_sales/Services/Api.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:point_of_sales/Configuration/AppConfig.dart';
 
-class AppDataTable extends StatefulWidget {
-  AppDataTable({Key? key}) : super(key: key);
+class TransactionTable extends StatefulWidget {
+  TransactionTable({Key? key}) : super(key: key);
 
   @override
-  AppDataTableState createState() => AppDataTableState();
+  _TransactionTableState createState() => _TransactionTableState();
 }
 
-class AppDataTableState extends State<AppDataTable> {
-  List<User> users = <User>[];
-  UsersDataSource? usersDataSource;
+class _TransactionTableState extends State<TransactionTable> {
+  ApiService service = new ApiService();
+  List<Transaction> transactions = <Transaction>[];
+  List<Transaction> filteredTransactions = <Transaction>[];
+  TransactionDataSource? transactionDataSource;
   bool isLoading = true;
   final int rowsPerPage = 7;
-  final ValueNotifier<bool> refreshNotifier =
-      ValueNotifier(false); // Add notifier
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchData();
-    refreshNotifier.addListener(() {
-      fetchData();
-    });
-  }
+    transactions.add(Transaction(12, "product1", 12, 25, 5, "Ice Cream"));
+    transactions.add(Transaction(13, "product2", 12, 25, 5, "Ice Cream"));
 
-  void refreshData() {
-    fetchData();
+    transactions.add(Transaction(14, "product3", 12, 25, 5, "NONE"));
+
+    isLoading = false;
+    filteredTransactions = transactions;
+    transactionDataSource = TransactionDataSource(
+        transactionsData: filteredTransactions, rowsPerPage: rowsPerPage);
+    //fetchData();
   }
 
   Future<void> fetchData() async {
-    ApiResponse response = await ApiService.getUsers();
-    if (response.status == 200) {
-      setState(() {
-        users = response.data;
-        usersDataSource = UsersDataSource(
-            employeeData: users,
-            refreshNotifier: refreshNotifier,
-            context: context);
-        isLoading = false;
-      });
+    dynamic response =
+        await http.get(Uri.parse(AppConfig.apiBaseUrl + "api/users"));
+    print(response.body);
+    if (response.statusCode == 200) {
+      List jsonResponse = json.decode(response.body);
+      Future.delayed(
+          Duration(seconds: 2),
+          () => setState(() {
+                transactions = jsonResponse
+                    .map((transaction) => Transaction.fromJson(transaction))
+                    .toList();
+                transactionDataSource = TransactionDataSource(
+                    transactionsData: transactions, rowsPerPage: rowsPerPage);
+                isLoading = false;
+              }));
     } else {
       setState(() {
-        users = [];
-        usersDataSource = UsersDataSource(
-            employeeData: users,
-            refreshNotifier: refreshNotifier,
-            context: context);
+        transactions = [];
+        transactionDataSource = TransactionDataSource(
+            transactionsData: transactions, rowsPerPage: rowsPerPage);
         isLoading = false;
       });
     }
+  }
+
+  void onSearch(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredTransactions = transactions;
+      } else {
+        filteredTransactions = transactions
+            .where((product) =>
+                product.name.toLowerCase().contains(searchText.toLowerCase()) ||
+                product.categoryName
+                    .toLowerCase()
+                    .contains(searchText.toLowerCase()))
+            .toList();
+      }
+      transactionDataSource = TransactionDataSource(
+          transactionsData: filteredTransactions, rowsPerPage: rowsPerPage);
+    });
   }
 
   @override
@@ -71,7 +95,38 @@ class AppDataTableState extends State<AppDataTable> {
           borderRadius: BorderRadius.circular(30)),
       child: Column(
         children: [
-          // Data grid container
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Text('Transactions Table :',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (value) => onSearch(value),
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      hintText: 'Search by product name or category',
+                      hintStyle: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.normal,
+                          color: Appcolors.secondTextColor),
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -82,7 +137,7 @@ class AppDataTableState extends State<AppDataTable> {
                         width: 200,
                         child: Lottie.asset('assets/animations/loading.json')),
                   )
-                else if (usersDataSource != null)
+                else if (transactionDataSource != null)
                   SfDataGridTheme(
                     data: SfDataGridThemeData(
                       gridLineStrokeWidth: 0.5,
@@ -100,10 +155,10 @@ class AppDataTableState extends State<AppDataTable> {
                       ),
                     ),
                     child: SfDataGrid(
-                      source: usersDataSource!,
+                      allowFiltering: true,
+                      source: transactionDataSource!,
                       columnWidthMode: ColumnWidthMode.fill,
                       allowColumnsResizing: true,
-                      allowFiltering: true,
                       allowSorting: true,
                       gridLinesVisibility: GridLinesVisibility.none,
                       headerGridLinesVisibility: GridLinesVisibility.none,
@@ -122,41 +177,50 @@ class AppDataTableState extends State<AppDataTable> {
                                       fontSize: 16),
                                 ))),
                         GridColumn(
-                            columnName: 'firstName',
+                            columnName: 'name',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('First Name',
+                                child: Text('Name',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
                         GridColumn(
-                            columnName: 'lastName',
+                            columnName: 'price',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Last Name',
+                                  'Price',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                   overflow: TextOverflow.ellipsis,
                                 ))),
                         GridColumn(
-                            columnName: 'email',
+                            columnName: 'category',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('Email',
+                                child: Text('Category',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
                         GridColumn(
-                            columnName: 'role',
+                            columnName: 'stock',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('Role',
+                                child: Text('Stock',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)))),
+                        GridColumn(
+                            columnName: 'minimumStock',
+                            label: Container(
+                                padding: EdgeInsets.all(8.0),
+                                alignment: Alignment.center,
+                                child: Text('Min Stock',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
@@ -195,9 +259,9 @@ class AppDataTableState extends State<AppDataTable> {
             SizedBox()
           else
             SfDataPager(
-              delegate: usersDataSource!,
-              pageCount: users.length > 0
-                  ? (users.length / rowsPerPage).ceilToDouble()
+              delegate: transactionDataSource!,
+              pageCount: filteredTransactions.length > 0
+                  ? (filteredTransactions.length / rowsPerPage).ceilToDouble()
                   : 1,
               direction: Axis.horizontal,
               itemHeight: 35,
@@ -209,43 +273,30 @@ class AppDataTableState extends State<AppDataTable> {
   }
 }
 
-class UsersDataSource extends DataGridSource {
-  BuildContext context;
-  final ValueNotifier<bool> refreshNotifier;
-  UsersDataSource(
-      {required List<User> employeeData,
-      required this.refreshNotifier,
-      required this.context}) {
-    _employeeData = employeeData
+class TransactionDataSource extends DataGridSource {
+  TransactionDataSource(
+      {required List<Transaction> transactionsData,
+      required this.rowsPerPage}) {
+    _transactionData = transactionsData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'firstName', value: e.firstName),
-              DataGridCell<String>(columnName: 'lastName', value: e.lastName),
-              DataGridCell<String>(columnName: 'email', value: e.email),
-              DataGridCell<String>(columnName: 'role', value: e.role),
+              DataGridCell<String>(columnName: 'name', value: e.name),
+              DataGridCell<double>(columnName: 'price', value: e.price),
+              DataGridCell<String>(
+                  columnName: 'category', value: e.categoryName),
+              DataGridCell<int>(columnName: 'stock', value: e.stock),
+              DataGridCell<int>(
+                  columnName: 'minimumStock', value: e.minimumStock),
               DataGridCell<String>(columnName: 'actions', value: ""),
             ]))
         .toList();
-    paginatedData = _employeeData.getRange(0, _employeeData.length).toList();
   }
 
-  List<DataGridRow> _employeeData = [];
+  List<DataGridRow> _transactionData = [];
   List<DataGridRow> paginatedData = [];
-
+  int rowsPerPage;
   @override
   List<DataGridRow> get rows => paginatedData;
-
-  Future<void> deleteUser(int id) async {
-    ApiResponse response = await ApiService.deleteUser(id);
-
-    if (response.status == 200) {
-      _employeeData.removeWhere((row) => row
-          .getCells()
-          .any((cell) => cell.columnName == 'id' && cell.value == id));
-      paginatedData = _employeeData;
-      notifyListeners();
-    }
-  }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
@@ -258,78 +309,39 @@ class UsersDataSource extends DataGridSource {
           child: Container(
             padding: EdgeInsets.all(6.0),
             decoration: BoxDecoration(
-                color: Colors.orange, borderRadius: BorderRadius.circular(5)),
+                color: Appcolors.thirdBlue,
+                borderRadius: BorderRadius.circular(25)),
             child: Text(
               e.value.toString(),
               style: TextStyle(color: Colors.white),
             ),
           ),
         );
-      if (e.columnName == "actions")
-        return Center(
-          child: Container(
+      if (e.columnName == "price")
+        return Container(
             alignment: Alignment.center,
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () async {
-                    // Get the user data from the row
-                    final id = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'id')
-                        .value as int;
-                    final firstName = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'firstName')
-                        .value as String;
-                    final lastName = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'lastName')
-                        .value as String;
-                    final email = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'email')
-                        .value as String;
-                    final role = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'role')
-                        .value as String;
+            padding: EdgeInsets.all(8.0),
+            child: Text(e.value.toString() + " DT"));
 
-                    // Show the UpdateUserModal with the current user data
-                    showModalBottomSheet<void>(
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return UpdateUserModal(
-                          refreshNotifier: refreshNotifier,
-                          userId: id.toString(),
-                          userData: {
-                            'firstName': firstName,
-                            'lastName': lastName,
-                            'email': email,
-                            'role': role,
-                          },
-                        );
-                      },
-                    );
-                  },
-                  child: FaIcon(FontAwesomeIcons.penToSquare),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                InkWell(
-                    onTap: () async {
-                      final id = row
-                          .getCells()
-                          .firstWhere((cell) => cell.columnName == 'id')
-                          .value as int;
-                      await deleteUser(id);
-                      refreshNotifier.value = !refreshNotifier.value;
-                    },
-                    child: FaIcon(FontAwesomeIcons.trash))
-              ],
-            ),
+      if (e.columnName == "actions")
+        return Container(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              FaIcon(
+                FontAwesomeIcons.penToSquare,
+                size: 18,
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              FaIcon(
+                FontAwesomeIcons.trash,
+                size: 18,
+              )
+            ],
           ),
         );
       return Container(
@@ -342,17 +354,13 @@ class UsersDataSource extends DataGridSource {
 
   @override
   Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    int startIndex = newPageIndex * 6;
-    int endIndex = startIndex + 6;
-
-    // Ensure the endIndex does not exceed the length of _employeeData
-    endIndex =
-        endIndex > _employeeData.length ? _employeeData.length : endIndex;
-
-    // Safely update paginatedData
-    paginatedData = _employeeData.getRange(startIndex, endIndex).toList();
-
-    // Notify listeners to rebuild the data grid
+    int startIndex = newPageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
+    if (_transactionData.length < rowsPerPage)
+      paginatedData =
+          _transactionData.getRange(0, _transactionData.length).toList();
+    else
+      paginatedData = _transactionData.getRange(startIndex, endIndex).toList();
     notifyListeners();
     return true;
   }

@@ -3,28 +3,31 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lottie/lottie.dart';
-import 'package:point_of_sales/Models/User.dart';
-import 'package:point_of_sales/Screens/Users/widgets/UpdateUserModal.dart';
+import 'package:point_of_sales/Models/Category.dart';
+import 'package:point_of_sales/Screens/Category/widgets/UpdateCategoryModal.dart';
 import 'package:point_of_sales/Services/Api.dart';
+import 'package:point_of_sales/Utils/AppColors.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:point_of_sales/Configuration/AppConfig.dart';
 
-class AppDataTable extends StatefulWidget {
-  AppDataTable({Key? key}) : super(key: key);
+class CategoryTable extends StatefulWidget {
+  CategoryTable({Key? key}) : super(key: key);
 
   @override
-  AppDataTableState createState() => AppDataTableState();
+  CategoryTableState createState() => CategoryTableState();
 }
 
-class AppDataTableState extends State<AppDataTable> {
-  List<User> users = <User>[];
-  UsersDataSource? usersDataSource;
+class CategoryTableState extends State<CategoryTable> {
+  ApiService service = new ApiService();
+  List<Category> categories = <Category>[];
+  List<Category> filteredCategories = <Category>[];
+  CategoryDataSource? categoryDataSource;
   bool isLoading = true;
-  final int rowsPerPage = 7;
-  final ValueNotifier<bool> refreshNotifier =
-      ValueNotifier(false); // Add notifier
+  final int rowsPerPage = 5;
+  TextEditingController searchController = TextEditingController();
+  final ValueNotifier<bool> refreshNotifier = ValueNotifier(false);
 
   @override
   void initState() {
@@ -40,26 +43,46 @@ class AppDataTableState extends State<AppDataTable> {
   }
 
   Future<void> fetchData() async {
-    ApiResponse response = await ApiService.getUsers();
+    ApiResponse response = await ApiService.getCategories();
     if (response.status == 200) {
       setState(() {
-        users = response.data;
-        usersDataSource = UsersDataSource(
-            employeeData: users,
-            refreshNotifier: refreshNotifier,
-            context: context);
+        categories = response.data;
+        categoryDataSource = CategoryDataSource(
+            context: context,
+            categoriesData: categories,
+            rowsPerPage: rowsPerPage,
+            refreshNotifier: refreshNotifier);
         isLoading = false;
       });
     } else {
       setState(() {
-        users = [];
-        usersDataSource = UsersDataSource(
-            employeeData: users,
-            refreshNotifier: refreshNotifier,
-            context: context);
+        categories = [];
+        categoryDataSource = CategoryDataSource(
+            context: context,
+            categoriesData: categories,
+            rowsPerPage: rowsPerPage,
+            refreshNotifier: refreshNotifier);
         isLoading = false;
       });
     }
+  }
+
+  void onSearch(String searchText) {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredCategories = categories;
+      } else {
+        filteredCategories = categories
+            .where((categ) =>
+                categ.name.toLowerCase().contains(searchText.toLowerCase()))
+            .toList();
+      }
+      categoryDataSource = CategoryDataSource(
+          context: context,
+          categoriesData: filteredCategories,
+          rowsPerPage: rowsPerPage,
+          refreshNotifier: refreshNotifier);
+    });
   }
 
   @override
@@ -71,7 +94,38 @@ class AppDataTableState extends State<AppDataTable> {
           borderRadius: BorderRadius.circular(30)),
       child: Column(
         children: [
-          // Data grid container
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Text('Categories Table :',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (value) => onSearch(value),
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      hintText: 'Search by product name or category',
+                      hintStyle: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.normal,
+                          color: Appcolors.secondTextColor),
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: Stack(
               children: [
@@ -82,7 +136,7 @@ class AppDataTableState extends State<AppDataTable> {
                         width: 200,
                         child: Lottie.asset('assets/animations/loading.json')),
                   )
-                else if (usersDataSource != null)
+                else if (categoryDataSource != null)
                   SfDataGridTheme(
                     data: SfDataGridThemeData(
                       gridLineStrokeWidth: 0.5,
@@ -100,10 +154,10 @@ class AppDataTableState extends State<AppDataTable> {
                       ),
                     ),
                     child: SfDataGrid(
-                      source: usersDataSource!,
+                      allowFiltering: true,
+                      source: categoryDataSource!,
                       columnWidthMode: ColumnWidthMode.fill,
                       allowColumnsResizing: true,
-                      allowFiltering: true,
                       allowSorting: true,
                       gridLinesVisibility: GridLinesVisibility.none,
                       headerGridLinesVisibility: GridLinesVisibility.none,
@@ -122,44 +176,26 @@ class AppDataTableState extends State<AppDataTable> {
                                       fontSize: 16),
                                 ))),
                         GridColumn(
-                            columnName: 'firstName',
+                            columnName: 'name',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: Text('First Name',
+                                child: Text('Name',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16)))),
                         GridColumn(
-                            columnName: 'lastName',
+                            columnName: 'imageUrl',
                             label: Container(
                                 padding: EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
                                 child: Text(
-                                  'Last Name',
+                                  'Image Url',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                   overflow: TextOverflow.ellipsis,
                                 ))),
-                        GridColumn(
-                            columnName: 'email',
-                            label: Container(
-                                padding: EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: Text('Email',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16)))),
-                        GridColumn(
-                            columnName: 'role',
-                            label: Container(
-                                padding: EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: Text('Role',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16)))),
                         GridColumn(
                             columnName: 'actions',
                             label: Container(
@@ -195,9 +231,9 @@ class AppDataTableState extends State<AppDataTable> {
             SizedBox()
           else
             SfDataPager(
-              delegate: usersDataSource!,
-              pageCount: users.length > 0
-                  ? (users.length / rowsPerPage).ceilToDouble()
+              delegate: categoryDataSource!,
+              pageCount: categories.length > 0
+                  ? (categories.length / rowsPerPage).ceilToDouble()
                   : 1,
               direction: Axis.horizontal,
               itemHeight: 35,
@@ -209,41 +245,67 @@ class AppDataTableState extends State<AppDataTable> {
   }
 }
 
-class UsersDataSource extends DataGridSource {
+class CategoryDataSource extends DataGridSource {
   BuildContext context;
   final ValueNotifier<bool> refreshNotifier;
-  UsersDataSource(
-      {required List<User> employeeData,
-      required this.refreshNotifier,
-      required this.context}) {
-    _employeeData = employeeData
+  CategoryDataSource({
+    required this.context,
+    required List<Category> categoriesData,
+    required this.rowsPerPage,
+    required this.refreshNotifier,
+  }) {
+    _transactionData = categoriesData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'firstName', value: e.firstName),
-              DataGridCell<String>(columnName: 'lastName', value: e.lastName),
-              DataGridCell<String>(columnName: 'email', value: e.email),
-              DataGridCell<String>(columnName: 'role', value: e.role),
+              DataGridCell<String>(columnName: 'name', value: e.name),
+              DataGridCell<String>(columnName: 'imageUrl', value: e.imageUrl),
               DataGridCell<String>(columnName: 'actions', value: ""),
             ]))
         .toList();
-    paginatedData = _employeeData.getRange(0, _employeeData.length).toList();
+
+    // Initialize paginated data based on the first page and rowsPerPage
+    int endIndex = rowsPerPage < _transactionData.length
+        ? rowsPerPage
+        : _transactionData.length;
+    paginatedData = _transactionData.getRange(0, endIndex).toList();
   }
 
-  List<DataGridRow> _employeeData = [];
+  List<DataGridRow> _transactionData = [];
   List<DataGridRow> paginatedData = [];
+  final int rowsPerPage;
 
   @override
   List<DataGridRow> get rows => paginatedData;
 
-  Future<void> deleteUser(int id) async {
-    ApiResponse response = await ApiService.deleteUser(id);
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    int startIndex = newPageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
 
+    // Ensure the endIndex does not exceed the length of _transactionData
+    endIndex =
+        endIndex > _transactionData.length ? _transactionData.length : endIndex;
+
+    // Update paginatedData based on new indices
+    paginatedData = _transactionData.getRange(startIndex, endIndex).toList();
+
+    // Notify listeners to rebuild the data grid
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> deleteCateg(int id) async {
+    ApiResponse response = await ApiService.deleteCategory(id);
     if (response.status == 200) {
-      _employeeData.removeWhere((row) => row
+      print('category deleted successfully');
+
+      _transactionData.removeWhere((row) => row
           .getCells()
           .any((cell) => cell.columnName == 'id' && cell.value == id));
-      paginatedData = _employeeData;
+      paginatedData = _transactionData;
       notifyListeners();
+    } else {
+      print('Failed to delete Category');
     }
   }
 
@@ -258,78 +320,69 @@ class UsersDataSource extends DataGridSource {
           child: Container(
             padding: EdgeInsets.all(6.0),
             decoration: BoxDecoration(
-                color: Colors.orange, borderRadius: BorderRadius.circular(5)),
+                color: Appcolors.thirdBlue,
+                borderRadius: BorderRadius.circular(25)),
             child: Text(
               e.value.toString(),
               style: TextStyle(color: Colors.white),
             ),
           ),
         );
-      if (e.columnName == "actions")
-        return Center(
-          child: Container(
+      if (e.columnName == "price")
+        return Container(
             alignment: Alignment.center,
-            child: Row(
-              children: [
-                InkWell(
+            padding: EdgeInsets.all(8.0),
+            child: Text(e.value.toString() + " DT"));
+
+      if (e.columnName == "actions")
+        return Container(
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              InkWell(
+                onTap: () async {
+                  // Get the user data from the row
+                  final id = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'id')
+                      .value as int;
+                  final name = row
+                      .getCells()
+                      .firstWhere((cell) => cell.columnName == 'name')
+                      .value as String;
+
+                  showModalBottomSheet<void>(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return UpdateCategoryModal(
+                        refreshNotifier: refreshNotifier,
+                        categId: id.toString(),
+                        categData: {
+                          'name': name,
+                        },
+                      );
+                    },
+                  );
+                },
+                child: FaIcon(FontAwesomeIcons.penToSquare),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              InkWell(
                   onTap: () async {
-                    // Get the user data from the row
                     final id = row
                         .getCells()
                         .firstWhere((cell) => cell.columnName == 'id')
                         .value as int;
-                    final firstName = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'firstName')
-                        .value as String;
-                    final lastName = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'lastName')
-                        .value as String;
-                    final email = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'email')
-                        .value as String;
-                    final role = row
-                        .getCells()
-                        .firstWhere((cell) => cell.columnName == 'role')
-                        .value as String;
-
-                    // Show the UpdateUserModal with the current user data
-                    showModalBottomSheet<void>(
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return UpdateUserModal(
-                          refreshNotifier: refreshNotifier,
-                          userId: id.toString(),
-                          userData: {
-                            'firstName': firstName,
-                            'lastName': lastName,
-                            'email': email,
-                            'role': role,
-                          },
-                        );
-                      },
-                    );
+                    await deleteCateg(id);
+                    refreshNotifier.value = !refreshNotifier.value;
                   },
-                  child: FaIcon(FontAwesomeIcons.penToSquare),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                InkWell(
-                    onTap: () async {
-                      final id = row
-                          .getCells()
-                          .firstWhere((cell) => cell.columnName == 'id')
-                          .value as int;
-                      await deleteUser(id);
-                      refreshNotifier.value = !refreshNotifier.value;
-                    },
-                    child: FaIcon(FontAwesomeIcons.trash))
-              ],
-            ),
+                  child: FaIcon(FontAwesomeIcons.trash))
+            ],
           ),
         );
       return Container(
@@ -338,22 +391,5 @@ class UsersDataSource extends DataGridSource {
         child: Text(e.value.toString()),
       );
     }).toList());
-  }
-
-  @override
-  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
-    int startIndex = newPageIndex * 6;
-    int endIndex = startIndex + 6;
-
-    // Ensure the endIndex does not exceed the length of _employeeData
-    endIndex =
-        endIndex > _employeeData.length ? _employeeData.length : endIndex;
-
-    // Safely update paginatedData
-    paginatedData = _employeeData.getRange(startIndex, endIndex).toList();
-
-    // Notify listeners to rebuild the data grid
-    notifyListeners();
-    return true;
   }
 }
