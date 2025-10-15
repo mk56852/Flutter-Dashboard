@@ -30,10 +30,10 @@ class _TransactionTableState extends State<TransactionTable> {
   @override
   void initState() {
     super.initState();
-    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
-    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
+    transactions.add(Transaction(12, "product1", 12, 25, 5, "Ice Cream"));
+    transactions.add(Transaction(13, "product2", 12, 25, 5, "Ice Cream"));
 
-    transactions.add(Transaction(12, "product1", 12, 25, 5, "glace"));
+    transactions.add(Transaction(14, "product3", 12, 25, 5, "NONE"));
 
     isLoading = false;
     filteredTransactions = transactions;

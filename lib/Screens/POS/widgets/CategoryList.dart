@@ -2,27 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:point_of_sales/Models/Category.dart';
 import 'package:point_of_sales/Utils/AppColors.dart';
 
-List categories = [
-  Category(id: 1, name: "Categoryazazaze 1", imageUrl: "assets/"),
-  Category(id: 1, name: "Category 2", imageUrl: "assets/"),
-  Category(id: 1, name: "Cate 3", imageUrl: "assets/"),
-  Category(id: 1, name: "Category 4", imageUrl: "assets/"),
-  Category(id: 1, name: "Categaaaaaaa 5", imageUrl: "assets/"),
-  Category(id: 1, name: "Category 6", imageUrl: "assets/"),
-  Category(id: 1, name: "Category 7", imageUrl: "assets/"),
-];
-
 class CategoryList extends StatelessWidget {
-  const CategoryList({super.key});
+  List<Category> categories;
+  CategoryList({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children:
-              categories.map((item) => CategoryWidget(category: item)).toList(),
-        ));
+    return Container(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        children:
+            categories.map((item) => CategoryWidget(category: item)).toList(),
+      ),
+    );
   }
 }
 

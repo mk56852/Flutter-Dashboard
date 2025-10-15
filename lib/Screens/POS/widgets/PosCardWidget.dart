@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:point_of_sales/Configuration/AppConfig.dart';
 import 'package:point_of_sales/Models/CardModel.dart';
 import 'package:point_of_sales/Screens/POS/CardNotifier/CardNotifier.dart';
 import 'package:point_of_sales/SharedWidget/AppButton.dart';
@@ -22,13 +23,31 @@ class PosCard extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(13),
-                child: Image.asset(
-                  card.image,
-                  fit: BoxFit.cover,
+            child: Container(
+              width: double.maxFinite,
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(13),
+                  child: Image.network(
+                    AppConfig.apiBaseUrl + "api/upload/product/" + card.image,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
+                        );
+                      }
+                    },
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ),
             ),

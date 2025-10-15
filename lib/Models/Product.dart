@@ -6,9 +6,10 @@ class Product {
   final int stock;
   final int minimumStock;
   final String categoryName;
+  final String imageUrl;
 
   Product(this.id, this.name, this.price, this.status, this.stock,
-      this.minimumStock, this.categoryName);
+      this.minimumStock, this.categoryName, this.imageUrl);
   factory Product.fromJson(Map<String, dynamic> json) {
     String status = json['status'];
     Productstatus s;
@@ -25,7 +26,7 @@ class Product {
         throw Exception('Unknown ProductStatus: $status');
     }
     return Product(json['id'], json['name'], json['price'], s, json['stock'],
-        json['minimumStock'], json["categoryName"]);
+        json['minimumStock'], json["categoryName"], json["imageUrl"]);
   }
 }
 

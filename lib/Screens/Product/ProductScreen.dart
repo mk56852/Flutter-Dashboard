@@ -21,13 +21,19 @@ class ProductScreen extends StatelessWidget {
   }
 
   Future<List<Category>> fetchProductTypes() async {
-    ApiResponse response = await ApiService.getCategories();
+    /* ApiResponse response = await ApiService.getCategories();
 
     if (response.status == 200) {
       return response.data;
     } else {
       throw Exception("Failed to fetch product types");
-    }
+    }*/
+
+    List<Category> result = [];
+    result.add(Category(id: 1, name: "Category 1"));
+    result.add(Category(id: 2, name: "Category 2"));
+    result.add(Category(id: 3, name: "Category 3"));
+    return result;
   }
 
   @override
